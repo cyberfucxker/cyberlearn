@@ -7,10 +7,13 @@ import Loader from './components/Loader';
 import ResultsDisplay from './components/ResultsDisplay';
 import ErrorMessage from './components/ErrorMessage';
 import Hero from './components/Hero';
+import NatureExperience from './components/nature/NatureExperience';
 
 type AppState = 'idle' | 'loading' | 'results' | 'error';
+type View = 'app' | 'nature-demo';
 
 const App: React.FC = () => {
+  const [view, setView] = useState<View>('app');
   const [appState, setAppState] = useState<AppState>('idle');
   const [file, setFile] = useState<File | null>(null);
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
@@ -51,6 +54,10 @@ const App: React.FC = () => {
     setAppState('idle');
   }
 
+  if (view === 'nature-demo') {
+    return <NatureExperience onExit={() => setView('app')} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
@@ -61,6 +68,12 @@ const App: React.FC = () => {
           <p className="mt-2 text-slate-400">
             Transforming Cyberpsychology PDFs into Interactive Learning Experiences
           </p>
+          <button
+            onClick={() => setView('nature-demo')}
+            className="mt-4 rounded-full border border-emerald-400/50 px-4 py-1.5 text-sm text-emerald-300 transition-colors hover:bg-emerald-400/10"
+          >
+            🌿 View Nature Experience Demo
+          </button>
         </header>
 
         <main className="bg-slate-800/50 rounded-xl shadow-2xl shadow-cyan-500/10 backdrop-blur-sm border border-slate-700 p-6">

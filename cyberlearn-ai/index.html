@@ -7,11 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CyberLearn AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              linen: '#F9FAFB',
+            },
+          },
+        },
+      };
+    </script>
     <style>
       /* For 3D transform effects on flashcards */
       .transform-style-3d { transform-style: preserve-3d; }
       .rotate-y-180 { transform: rotateY(180deg); }
       .backface-hidden { backface-visibility: hidden; }
+
+      /* Nature Experience: gentle sway for flora nodes */
+      @keyframes sway {
+        0%, 100% { transform: rotate(-2deg) translateY(0); }
+        50% { transform: rotate(2deg) translateY(-4px); }
+      }
+      .animate-sway { animation: sway 4s ease-in-out infinite; }
     </style>
   <script type="importmap">
 {
