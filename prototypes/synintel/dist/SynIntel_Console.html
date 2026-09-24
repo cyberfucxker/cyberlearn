@@ -225,6 +225,43 @@
   .region:last-child{border-bottom:0;}
   .slo{height:6px; border-radius:6px; background:var(--canvas-deep); overflow:hidden; width:120px;}
   .slo i{display:block; height:100%; background:var(--ok);}
+  /* ---------- EDGE / CCTV ---------- */
+  .cam-wall{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  @media (max-width:1100px){.cam-wall{grid-template-columns:1fr 1fr;}}
+  .cam{position:relative; background:#05070B; border-radius:8px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border-color .15s ease;}
+  .cam.sel{border-color:#5B4BC4;}
+  .cam.alert{border-color:#B23A30; animation:alertglow 1.6s infinite;}
+  @keyframes alertglow{0%,100%{box-shadow:0 0 0 0 rgba(178,58,48,.0)}50%{box-shadow:0 0 0 4px rgba(178,58,48,.35)}}
+  .cam canvas{display:block; width:100%; height:auto; aspect-ratio:16/9;}
+  .cam-cap{position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:space-between; gap:6px; padding:6px 8px; background:linear-gradient(transparent, rgba(0,0,0,.75)); font-family:var(--font-mono); font-size:10px; color:#E6E9F0;}
+  .cam-cap .st{color:#9FD3A6;}
+  .cam-cap .st.bad{color:#FF8E84;}
+  .cam-big{position:relative; background:#05070B; border-radius:8px; overflow:hidden;}
+  .cam-big canvas{display:block; width:100%; height:auto; aspect-ratio:16/9;}
+  .edge-meta{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px;}
+  .edge-meta > div{background:var(--canvas); border:1px solid var(--line); border-radius:6px; padding:8px 10px;}
+  .edge-meta .k{font-family:var(--font-mono); font-size:9.5px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase;}
+  .edge-meta .v{font-size:12.5px; font-weight:600; margin-top:2px;}
+  .incident{border:1px solid var(--line); border-left:4px solid var(--c); border-radius:8px; padding:12px 14px; margin-bottom:10px; background:#fff;}
+  .incident .top{display:flex; justify-content:space-between; gap:10px; align-items:center;}
+  .incident .ti{font-size:13.5px; font-weight:600;}
+  .incident .tm{font-family:var(--font-mono); font-size:10.5px; color:var(--muted);}
+  .incident .bd{font-size:12.5px; color:var(--ink-soft); margin-top:6px;}
+  .incident .ev{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .incident .ev span{font-family:var(--font-mono); font-size:10px; padding:2px 7px; border-radius:10px; background:var(--canvas); border:1px solid var(--line); color:var(--ink-soft);}
+  .agent-note{margin-top:10px; font-size:12.5px; color:var(--ink-soft); background:rgba(91,75,196,.06); border:1px solid rgba(91,75,196,.25); border-radius:8px; padding:10px 12px;}
+  .agent-note b{color:var(--violet);}
+  .chain{display:flex; align-items:stretch; flex-wrap:wrap; gap:6px;}
+  .chain .lk{flex:1; min-width:120px; border:1px solid var(--line); border-top:3px solid var(--c); border-radius:8px; padding:9px 10px; background:#fff;}
+  .chain .lk .t{font-size:12.5px; font-weight:600;}
+  .chain .lk .s{font-family:var(--font-mono); font-size:10px; color:var(--muted); margin-top:2px;}
+  .chain .ar{display:flex; align-items:center; color:var(--muted);}
+  .floor{background:#fff; border:1px solid var(--line); border-radius:var(--radius);}
+  .floor svg{display:block; width:100%; height:auto;}
+  .ota{height:10px; border-radius:6px; background:var(--canvas-deep); overflow:hidden; margin:8px 0 4px;}
+  .ota i{display:block; height:100%; background:linear-gradient(90deg,#1F7A4D,#0F7C82); transition:width .8s ease;}
+  .live-val{font-family:var(--font-mono); font-size:12px;}
+  .live-val.hot{color:var(--danger); font-weight:600;}
 </style>
 </head>
 <body>
@@ -244,6 +281,9 @@
 
   <div class="nav-group-label">Intelligence Layer</div>
   <ul class="nav" id="nav-intel"></ul>
+
+  <div class="nav-group-label">Edge &amp; Physical Security</div>
+  <ul class="nav" id="nav-edge"></ul>
 
   <div class="nav-group-label">Platform Layer</div>
   <ul class="nav" id="nav-platform"></ul>
@@ -285,6 +325,10 @@ const NAV = {
     {id:'data', label:'Data & Analytics', color:'#2458B8', cap:'02'},
     {id:'industry', label:'Industry Packs', color:'#B4415F', cap:'08'},
   ],
+  edge:[
+    {id:'cctv', label:'Intelligent CCTV', color:'#E0645A', cap:'09'},
+    {id:'iot', label:'TinyML & IoT Fleet', color:'#2FA3A8', cap:'09'},
+  ],
   platform:[
     {id:'integrations', label:'Integrations & APIs', color:'#B7791F', cap:'06'},
     {id:'governance', label:'Security & Governance', color:'#B23A30', cap:'07'},
@@ -303,9 +347,15 @@ const TITLES = {
   governance:['Security & Governance','Platform Layer / Access Control · Audit'],
   cloud:['Cloud & Distributed Systems','Platform Layer / Infrastructure'],
   apps:['Enterprise Applications','Platform Layer / Workspaces · Apps'],
+  cctv:['Intelligent CCTV & Security','Edge Layer / Vision AI · Access · Perimeter'],
+  iot:['TinyML & IoT Fleet','Edge Layer / On-device ML · Sensors · OTA'],
 };
 
 const FEED = [
+  ['#E0645A','CAM-11 thermal: <b>perimeter tripwire</b> crossed, corroborated by PIR-E-03'],
+  ['#2FA3A8','TinyML <b>vib-anomaly-ae</b> flagged bearing wear on Motor M-3-02 (score 0.91)'],
+  ['#E0645A','CAM-04: worker without <b>hi-vis vest</b> in loading bay, supervisor notified'],
+  ['#2FA3A8','OTA rollout <b>glassbreak-kws v2</b> reached 214 of 312 devices'],
   ['#5B4BC4','Agent <b>Supply-Risk Analyst</b> completed a 6-step plan in 4.1s'],
   ['#0F7C82','Graph: <b>312 new relationships</b> inferred from supplier contracts'],
   ['#2458B8','Pipeline <b>erp_orders_cdc</b> synced 48,210 rows — freshness 42s'],
@@ -331,6 +381,7 @@ function navItem(item){
 function buildNav(){
   NAV.primary.forEach(i=>document.getElementById('nav-primary').appendChild(navItem(i)));
   NAV.intel.forEach(i=>document.getElementById('nav-intel').appendChild(navItem(i)));
+  NAV.edge.forEach(i=>document.getElementById('nav-edge').appendChild(navItem(i)));
   NAV.platform.forEach(i=>document.getElementById('nav-platform').appendChild(navItem(i)));
 }
 let feedTimer=null, agentRun=0;
@@ -343,7 +394,7 @@ function switchTab(id){
   c.innerHTML=''; c.classList.remove('fade-in'); void c.offsetWidth; c.classList.add('fade-in');
   agentRun++;
   ({overview:renderOverview, ask:renderAsk, agents:renderAgents, graph:renderGraph, data:renderData,
-    industry:renderIndustry, integrations:renderIntegrations, governance:renderGovernance, cloud:renderCloud, apps:renderApps})[id](c);
+    industry:renderIndustry, integrations:renderIntegrations, governance:renderGovernance, cloud:renderCloud, apps:renderApps, cctv:renderCCTV, iot:renderIoT})[id](c);
   try{ history.replaceState(null,'','#'+id); }catch(e){}
   window.scrollTo(0,0);
 }
@@ -402,6 +453,7 @@ function renderOverview(c){
           <tr><td>Data & Analytics</td><td><span class="pill ok">Working</span></td><td>Streaming features</td></tr>
           <tr><td>Integrations & APIs</td><td><span class="pill ok">Working</span></td><td>Connector SDK</td></tr>
           <tr><td>Security & Governance</td><td><span class="pill ok">Working</span></td><td>Customer-managed keys</td></tr>
+          <tr><td>Edge AI, IoT &amp; CCTV</td><td><span class="pill ok">Working</span></td><td>Federated learning, drone patrol</td></tr>
           <tr><td>Industry AI</td><td><span class="pill warn">2 of 5 packs</span></td><td>BFSI, Healthcare</td></tr>
         </table>
       </div>
@@ -927,6 +979,319 @@ function renderApps(c){
         <div class="callout"><b>DORA metrics shown</b> are the targets we propose for the SynIntel engagement and would report every sprint.</div>
       </div>
     </div>`;
+}
+
+/* ============================= EDGE: INTELLIGENT CCTV ============================= */
+const CAMS = [
+  {id:'CAM-01', nm:'Main Gate · ANPR', scene:'gate', node:'Raspberry Pi 5 + Hailo-8L', model:'anpr-lite v4 (int8)', fps:25, lat:'21 ms', status:'Vehicle whitelisted', alert:false,
+    events:[['14:02:11','MH 12 KX 4471 matched fleet register, gate opened','ok'],['13:57:40','MH 14 GT 0921 visitor pass printed','info'],['13:41:03','Unregistered plate DL 3C AB 1182 held at barrier','warn']]},
+  {id:'CAM-04', nm:'Loading Bay 2', scene:'bay', node:'Jetson Orin Nano', model:'ppe-detect-nano v3 (int8)', fps:22, lat:'14 ms', status:'PPE violation', alert:true,
+    events:[['14:01:52','Person without hi-vis vest in forklift zone','bad'],['13:48:10','Forklift FL-07 over 8 km/h in pedestrian lane','warn'],['13:30:22','Dock door D2 open more than 20 min','info']]},
+  {id:'CAM-07', nm:'Warehouse Aisle 4', scene:'aisle', node:'ESP32-S3 Eye + edge hub', model:'person-detect-micro (290 KB)', fps:10, lat:'120 ms', status:'Normal', alert:false,
+    events:[['13:59:30','Occupancy 2 people, within limit','ok'],['12:10:05','Pallet blocking fire exit E4 cleared','ok']]},
+  {id:'CAM-11', nm:'Perimeter East · Thermal', scene:'thermal', node:'Jetson Orin Nano', model:'thermal-intrusion v2 (int8)', fps:15, lat:'18 ms', status:'Tripwire crossed', alert:true,
+    events:[['02:14:07','Person crossed east fence tripwire (after hours)','bad'],['02:14:09','PIR-E-03 and fence vibration VIB-E-02 corroborated','bad'],['02:15:30','Guard G-2 dispatched, ETA 3 min','info']]},
+  {id:'CAM-15', nm:'Server Room · DC-1', scene:'server', node:'Coral Dev Board Micro', model:'tamper-detect (180 KB)', fps:8, lat:'40 ms', status:'Secure', alert:false,
+    events:[['13:20:14','Badge 10442 (IT Ops) entry, 2-person rule met','ok'],['09:02:51','Camera tamper check passed','ok']]},
+  {id:'CAM-18', nm:'Production Line 3', scene:'line', node:'Jetson Orin Nano', model:'smoke-haze v1 + thermal fusion', fps:20, lat:'16 ms', status:'Haze, checking sensors', alert:false,
+    events:[['14:00:48','Haze score 0.72, thermal TS-3-07 reads 61 °C (normal < 70)','warn'],['11:15:02','Conveyor jam cleared automatically','ok']]},
+];
+let camSel='CAM-11';
+function camTime(cam){
+  if(cam.scene==='thermal') return '2026-09-24 02:14:07';
+  const d=new Date(); const p=n=>String(n).padStart(2,'0');
+  return `2026-09-24 ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function drawPerson(ctx,x,y,s,col,step,blur){
+  const sw=Math.sin(step)*5*s;
+  ctx.strokeStyle=col; ctx.lineWidth=4*s; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x,y-18*s); ctx.lineTo(x-sw,y); ctx.moveTo(x,y-18*s); ctx.lineTo(x+sw,y); ctx.stroke();
+  ctx.fillStyle=col; ctx.beginPath(); ctx.roundRect(x-7*s,y-44*s,14*s,28*s,5*s); ctx.fill();
+  ctx.beginPath(); ctx.arc(x,y-51*s,6.5*s,0,Math.PI*2); ctx.fill();
+  if(blur){ // on-device face anonymisation (mosaic)
+    const g=4*s; const tones=['#6b7280','#8b93a3','#565d6b','#7c8494'];
+    for(let i=-2;i<2;i++) for(let j=-2;j<2;j++){ ctx.fillStyle=tones[(i*3+j*7+99)%4]; ctx.fillRect(x+i*g,y-51*s+j*g,g,g); }
+  }
+}
+function bbox(ctx,x,y,w,h,label,col){
+  ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.strokeRect(x,y,w,h);
+  ctx.font='600 9px IBM Plex Mono, monospace'; const tw=ctx.measureText(label).width+8;
+  ctx.fillStyle=col; ctx.fillRect(x-0.8,y-13,tw,13);
+  ctx.fillStyle='#fff'; ctx.fillText(label,x+3,y-3.5);
+}
+function grain(ctx,n,alpha){
+  ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+  for(let i=0;i<n;i++) ctx.fillRect(Math.random()*480,Math.random()*270,1,1);
+}
+function drawCam(ctx,cam,t){
+  const T=t/1000;
+  ctx.save();
+  if(cam.scene==='gate'){
+    ctx.fillStyle='#2a3140'; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#3a4252'; ctx.fillRect(0,0,480,95);
+    ctx.fillStyle='#454d5c'; for(let i=0;i<6;i++) ctx.fillRect(20+i*80,40,50,55);
+    ctx.fillStyle='#1d222c'; ctx.beginPath(); ctx.moveTo(0,270); ctx.lineTo(120,120); ctx.lineTo(420,120); ctx.lineTo(480,200); ctx.lineTo(480,270); ctx.fill();
+    ctx.strokeStyle='#c9b458'; ctx.setLineDash([14,12]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(60,240); ctx.lineTo(440,150); ctx.stroke(); ctx.setLineDash([]);
+    const cyc=T%9, cx=Math.min(-140+cyc*70, 250);
+    const open=cx>160;
+    ctx.fillStyle='#555d6b'; ctx.fillRect(360,110,10,70);
+    ctx.save(); ctx.translate(365,115); ctx.rotate(open?-1.2:0);
+    for(let i=0;i<8;i++){ ctx.fillStyle=i%2?'#d9d9d9':'#c0392b'; ctx.fillRect(-i*16-16,-3,16,6); } ctx.restore();
+    ctx.fillStyle='#8a929f'; ctx.beginPath(); ctx.roundRect(cx,150,150,48,8); ctx.fill();
+    ctx.fillStyle='#6a7280'; ctx.beginPath(); ctx.roundRect(cx+25,128,90,30,8); ctx.fill();
+    ctx.fillStyle='#394150'; ctx.fillRect(cx+33,134,34,20); ctx.fillRect(cx+73,134,34,20);
+    ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(cx+30,198,13,0,7); ctx.arc(cx+120,198,13,0,7); ctx.fill();
+    ctx.fillStyle='#f2f2f2'; ctx.fillRect(cx+146,170,26,11);
+    if(cx>-40){ bbox(ctx,cx-4,124,160,90,'car 0.98','#1F7A4D'); bbox(ctx,cx+140,166,38,19,'MH 12 KX 4471 · 0.97','#2458B8'); }
+  }
+  if(cam.scene==='bay'){
+    ctx.fillStyle='#39404c'; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#2b313b'; ctx.fillRect(0,0,480,90);
+    for(let i=0;i<3;i++){ ctx.fillStyle='#4b5361'; ctx.fillRect(40+i*150,15,110,72); ctx.fillStyle='#232830'; for(let k=0;k<7;k++) ctx.fillRect(40+i*150,20+k*10,110,2); }
+    ctx.strokeStyle='#d4b13a'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,170); ctx.lineTo(480,150); ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1; for(let i=0;i<9;i++){ ctx.beginPath(); ctx.moveTo(240,90); ctx.lineTo(-200+i*110,270); ctx.stroke(); }
+    const fx=40+((T*40)%420);
+    ctx.fillStyle='#c98b1e'; ctx.fillRect(fx,120,60,40); ctx.fillStyle='#222'; ctx.fillRect(fx+10,100,30,22);
+    ctx.strokeStyle='#999'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(fx+62,95); ctx.lineTo(fx+62,160); ctx.lineTo(fx+90,160); ctx.stroke();
+    ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(fx+12,162,8,0,7); ctx.arc(fx+50,162,8,0,7); ctx.fill();
+    bbox(ctx,fx-2,95,95,77,'forklift FL-07 0.96','#1F7A4D');
+    const px=330-((T*14)%200);
+    drawPerson(ctx,px,240,1.25,'#9aa3b2',T*6,true);
+    bbox(ctx,px-16,165,32,80,'person · NO HI-VIS 0.91','#B23A30');
+    ctx.fillStyle='rgba(178,58,48,.85)'; ctx.fillRect(8,24,150,20); ctx.fillStyle='#fff'; ctx.font='600 10px IBM Plex Mono, monospace'; ctx.fillText('⚠ PPE ZONE VIOLATION',16,38);
+  }
+  if(cam.scene==='aisle'){
+    ctx.fillStyle='#343b47'; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#262c36'; ctx.beginPath(); ctx.moveTo(190,80); ctx.lineTo(290,80); ctx.lineTo(420,270); ctx.lineTo(60,270); ctx.fill();
+    for(const side of [-1,1]){
+      for(let lv=0;lv<5;lv++){
+        const y0=80+lv*38; ctx.fillStyle='#4a5260';
+        ctx.beginPath(); if(side<0){ctx.moveTo(0,y0-40); ctx.lineTo(190,80+lv*12); ctx.lineTo(190,86+lv*12); ctx.lineTo(0,y0-30);} else {ctx.moveTo(480,y0-40); ctx.lineTo(290,80+lv*12); ctx.lineTo(290,86+lv*12); ctx.lineTo(480,y0-30);} ctx.fill();
+        for(let b=0;b<5;b++){ const bx=side<0? 10+b*34 : 470-b*34-26; ctx.fillStyle=['#8a6d4a','#7a5f3f','#9a7b55'][(lv+b)%3]; ctx.fillRect(bx,y0-68+b*5,26,26-b*3); }
+      }
+    }
+    const k=(T%8)/8, s=0.55+k*1.1, py=110+k*150;
+    drawPerson(ctx,240+Math.sin(T)*6,py,s,'#aab2c0',T*5,true);
+    bbox(ctx,240-12*s,py-60*s,24*s,64*s,'person 0.95','#1F7A4D');
+    ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(8,24,120,20); ctx.fillStyle='#9FD3A6'; ctx.font='600 10px IBM Plex Mono, monospace'; ctx.fillText('OCCUPANCY 2 / 12',16,38);
+  }
+  if(cam.scene==='thermal'){
+    const g=ctx.createLinearGradient(0,0,0,270); g.addColorStop(0,'#140a2e'); g.addColorStop(1,'#2b0f45'); ctx.fillStyle=g; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#351556'; ctx.fillRect(0,170,480,100);
+    ctx.strokeStyle='#5d3a86'; ctx.lineWidth=2;
+    for(let i=0;i<13;i++){ ctx.beginPath(); ctx.moveTo(i*40,70); ctx.lineTo(i*40,180); ctx.stroke(); }
+    for(let j=0;j<5;j++){ ctx.beginPath(); ctx.moveTo(0,80+j*24); ctx.lineTo(480,80+j*24); ctx.stroke(); }
+    ctx.strokeStyle='#f5d142'; ctx.setLineDash([8,6]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,200); ctx.lineTo(480,196); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#f5d142'; ctx.font='600 9px IBM Plex Mono, monospace'; ctx.fillText('VIRTUAL TRIPWIRE · ZONE E-2',8,192);
+    const k=(T%7)/7, hx=60+k*340, hy=150+k*95;
+    const hg=ctx.createRadialGradient(hx,hy-30,2,hx,hy-30,40); hg.addColorStop(0,'#fff6c2'); hg.addColorStop(.35,'#ffb030'); hg.addColorStop(.7,'rgba(230,70,40,.6)'); hg.addColorStop(1,'rgba(230,70,40,0)');
+    ctx.fillStyle=hg; ctx.beginPath(); ctx.ellipse(hx,hy-30,18,40,0,0,7); ctx.fill();
+    const crossed=hy>198;
+    bbox(ctx,hx-20,hy-74,40,80, crossed?'INTRUSION · person 0.93':'person 0.93', crossed?'#B23A30':'#B7791F');
+    if(crossed){ ctx.fillStyle='rgba(178,58,48,.9)'; ctx.fillRect(8,24,170,20); ctx.fillStyle='#fff'; ctx.font='600 10px IBM Plex Mono, monospace'; ctx.fillText('⚠ AFTER-HOURS INTRUSION',16,38); }
+  }
+  if(cam.scene==='server'){
+    ctx.fillStyle='#232a35'; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#1a1f28'; ctx.fillRect(0,210,480,60);
+    for(let r=0;r<5;r++){
+      const x=30+r*72; ctx.fillStyle='#11151c'; ctx.fillRect(x,40,60,175); ctx.strokeStyle='#39414f'; ctx.strokeRect(x,40,60,175);
+      for(let u=0;u<14;u++){ ctx.fillStyle='#2b323e'; ctx.fillRect(x+5,46+u*12,50,8);
+        const on=Math.sin(T*6+r*3+u*1.7)>0.2; ctx.fillStyle=on?((u+r)%5===0?'#f0a030':'#3ccb7f'):'#1d4d34'; ctx.fillRect(x+46,48+u*12,4,4); }
+    }
+    ctx.fillStyle='#3a4250'; ctx.fillRect(400,50,60,165); ctx.fillStyle='#8a929f'; ctx.fillRect(448,130,5,14);
+    bbox(ctx,398,62,64,152,'door closed','#1F7A4D');
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(8,24,226,20); ctx.fillStyle='#9FD3A6'; ctx.font='600 10px IBM Plex Mono, monospace'; ctx.fillText('TEMP 23.4°C · RH 41% · SMOKE 0.00',16,38);
+  }
+  if(cam.scene==='line'){
+    ctx.fillStyle='#363d49'; ctx.fillRect(0,0,480,270);
+    ctx.fillStyle='#4b5361'; for(let i=0;i<4;i++) ctx.fillRect(20+i*120,20,90,60);
+    ctx.fillStyle='#1c2129'; ctx.fillRect(0,150,480,40); ctx.fillStyle='#2c323c'; for(let i=0;i<24;i++) ctx.fillRect(((i*24+T*50)%500)-20,150,3,40);
+    for(let b=0;b<5;b++){ const bx=((b*110+T*50)%580)-60; ctx.fillStyle='#9a7b55'; ctx.fillRect(bx,122,46,30); ctx.fillStyle='#7a5f3f'; ctx.fillRect(bx,122,46,6); }
+    ctx.fillStyle='#5a6270'; ctx.fillRect(0,190,480,10);
+    const a=.25+.15*Math.sin(T*1.5);
+    const hz=ctx.createRadialGradient(330,95,5,330,95,90); hz.addColorStop(0,`rgba(210,214,222,${a+.15})`); hz.addColorStop(1,'rgba(210,214,222,0)');
+    ctx.fillStyle=hz; ctx.fillRect(220,10,220,180);
+    bbox(ctx,265,35,130,110,'smoke/haze 0.72','#B7791F');
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(8,24,236,20); ctx.fillStyle='#F0C27A'; ctx.font='600 10px IBM Plex Mono, monospace'; ctx.fillText('FUSION: TS-3-07 61°C · below 70°C',16,38);
+  }
+  grain(ctx, cam.scene==='thermal'?120:260, cam.scene==='thermal'?.12:.09);
+  // overlays
+  ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(0,0,480,18);
+  ctx.font='500 9.5px IBM Plex Mono, monospace'; ctx.fillStyle='#E6E9F0';
+  ctx.fillText(`${cam.id} · ${cam.nm.toUpperCase()}`,8,12.5);
+  const ts=camTime(cam); ctx.fillText(ts,480-ctx.measureText(ts).width-24,12.5);
+  if(Math.floor(T*2)%2===0){ ctx.fillStyle='#ff4d4d'; ctx.beginPath(); ctx.arc(468,9,4,0,7); ctx.fill(); }
+  ctx.restore();
+}
+function renderCCTV(c){
+  const my=agentRun;
+  c.innerHTML=`
+    <div class="eyebrow">Capability 09 · Edge AI, IoT &amp; intelligent CCTV</div>
+    <h1 class="page-h">Cameras that report what happened, not hours of footage.</h1>
+    <p class="page-sub">Vision models run on the camera or on an edge box next to it, so video never has to leave the site. Only events (a plate read, a PPE violation, a tripwire crossing) are sent to SynIntel. There they are linked to people, assets and shifts in the knowledge graph, and a Security Analyst agent turns related signals into one incident.</p>
+    <div class="kpi-grid">
+      ${kpi('Cameras on edge AI','148','across 6 sites','#E0645A')}
+      ${kpi('Events today','3,412','41 need review','#B7791F')}
+      ${kpi('False alarms suppressed','92%','multi-sensor fusion','#1F7A4D')}
+      ${kpi('Raw video kept on-site','100%','0 GB streamed to cloud','#5B4BC4')}
+    </div>
+    <div class="cam-wall" id="camwall">
+      ${CAMS.map(cm=>`<div class="cam ${cm.alert?'alert':''} ${cm.id===camSel?'sel':''}" data-id="${cm.id}"><canvas width="480" height="270"></canvas><div class="cam-cap"><span>${cm.id} · ${cm.nm}</span><span class="st ${cm.alert?'bad':''}">${cm.status}</span></div></div>`).join('')}
+    </div>
+    <div class="section-row">
+      <div class="panel"><h3 id="cam-title"></h3>
+        <div class="cam-big"><canvas id="cambig" width="960" height="540"></canvas></div>
+        <div class="edge-meta" id="cam-meta"></div>
+        <table style="margin-top:12px;" id="cam-events"></table>
+      </div>
+      <div class="panel"><h3>Incident queue <span class="tag">fused signals</span></h3>
+        <div class="incident" style="--c:#B23A30"><div class="top"><span class="ti">After-hours intrusion · Perimeter East</span><span class="pill bad">P1 · open</span></div>
+          <div class="tm">02:14:07 · Pune Plant 2 · Zone E-2</div>
+          <div class="bd">Thermal camera, PIR sensor and fence vibration sensor all triggered within 4 seconds of each other.</div>
+          <div class="ev"><span>CAM-11 thermal</span><span>PIR-E-03</span><span>VIB-E-02</span><span>Guard G-2 dispatched</span></div>
+          <div class="agent-note"><b>Security Analyst agent:</b> "One person crossed the east fence at 02:14 near the scrap yard. No badge swipe or visitor pass matches. The same zone had a cut-wire alert 9 days ago (INC-2291). I recommend a police notification and a fence inspection. Clip exported, faces unblurred for the investigation role only."</div>
+        </div>
+        <div class="incident" style="--c:#B7791F"><div class="top"><span class="ti">PPE violation · Loading Bay 2</span><span class="pill warn">P2 · notified</span></div>
+          <div class="tm">14:01:52 · Pune Plant 2 · Forklift zone</div>
+          <div class="bd">A worker without a hi-vis vest is 3 m from forklift FL-07. The shift supervisor was alerted on Teams, and the forklift speed limiter was engaged.</div>
+          <div class="ev"><span>CAM-04</span><span>FL-07 telematics</span><span>Shift B roster</span></div>
+        </div>
+        <div class="incident" style="--c:#2458B8"><div class="top"><span class="ti">Unregistered vehicle · Main Gate</span><span class="pill info">P3 · resolved</span></div>
+          <div class="tm">13:41:03 · Chennai Plant · Gate 1</div>
+          <div class="bd">Plate DL 3C AB 1182 was not on the vendor list. Reception confirmed a courier delivery and issued a temporary pass.</div>
+          <div class="ev"><span>CAM-01 ANPR</span><span>Visitor system</span></div>
+        </div>
+        <div class="callout"><b>Privacy by design:</b> faces are blurred on the device before anything is stored. Only the Investigation role can request an unblurred clip, and every such request is recorded in the audit log.</div>
+      </div>
+    </div>`;
+  const pick=id=>{ camSel=id; const cm=CAMS.find(x=>x.id===id);
+    c.querySelectorAll('.cam').forEach(el=>el.classList.toggle('sel',el.dataset.id===id));
+    document.getElementById('cam-title').innerHTML=`${cm.id} · ${cm.nm} <span class="tag">${cm.alert?'alert':'live'}</span>`;
+    document.getElementById('cam-meta').innerHTML=[['Edge node',cm.node],['Model',cm.model],['Inference',cm.lat],['Frame rate',cm.fps+' FPS']].map(m=>`<div><div class="k">${m[0]}</div><div class="v">${m[1]}</div></div>`).join('');
+    document.getElementById('cam-events').innerHTML='<tr><th>Time</th><th>Event</th><th></th></tr>'+cm.events.map(e=>`<tr><td class="mono">${e[0]}</td><td>${e[1]}</td><td><span class="pill ${e[2]}">${{ok:'ok',info:'info',warn:'review',bad:'alert'}[e[2]]}</span></td></tr>`).join('');
+  };
+  c.querySelectorAll('.cam').forEach(el=>el.onclick=()=>pick(el.dataset.id));
+  pick(camSel);
+  const thumbs=[...c.querySelectorAll('.cam canvas')].map(cv=>cv.getContext('2d'));
+  const big=document.getElementById('cambig').getContext('2d');
+  let last=0;
+  const loop=t=>{
+    if(my!==agentRun) return;
+    if(t-last>66){ last=t;
+      thumbs.forEach((ctx,i)=>drawCam(ctx,CAMS[i],t));
+      big.setTransform(2,0,0,2,0,0); drawCam(big,CAMS.find(x=>x.id===camSel),t);
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+/* ============================= EDGE: TINYML & IOT ============================= */
+const DEVICES=[
+  {id:'VIB-M3-02', kind:'Vibration', where:'Motor M-3-02 · Line 3', mcu:'STM32L4 (Cortex-M4)', link:'LoRaWAN', batt:'87%', base:2.1, unit:'mm/s RMS', warnAt:4.5},
+  {id:'TS-3-07', kind:'Thermal', where:'Line 3 oven exhaust', mcu:'ESP32-S3', link:'Wi-Fi · MQTT', batt:'mains', base:61, unit:'°C', warnAt:70},
+  {id:'AUD-WH-04', kind:'Acoustic', where:'Warehouse north wall', mcu:'nRF5340', link:'BLE mesh', batt:'64%', base:38, unit:'dB(A)', warnAt:85},
+  {id:'PIR-E-03', kind:'Motion', where:'Perimeter East · E-2', mcu:'ESP32-C6', link:'Thread', batt:'71%', base:0, unit:'events/min', warnAt:1},
+  {id:'AQ-DC1-01', kind:'Air quality', where:'Server room DC-1', mcu:'ESP32-S3', link:'Wi-Fi · MQTT', batt:'mains', base:412, unit:'ppm CO₂', warnAt:1000},
+  {id:'DOOR-DC1', kind:'Access', where:'Server room door', mcu:'nRF52840', link:'BLE mesh', batt:'92%', base:0, unit:'open', warnAt:1},
+];
+const MODELS=[
+  ['vib-anomaly-ae v3','Bearing and motor anomaly (autoencoder)','Cortex-M4 · 256 KB RAM','38 KB','AUC 0.96','4.1 ms'],
+  ['glassbreak-kws v2','Audio events: glass break, alarm, shout','ESP32-S3 · nRF5340','112 KB','F1 0.94','18 ms'],
+  ['person-detect-micro','Person presence, low-power camera','ESP32-S3 Eye','290 KB','Acc 91.2%','120 ms'],
+  ['ppe-detect-nano v3','Hi-vis vest and helmet detection','Jetson Orin Nano','6.2 MB','mAP 0.88','14 ms'],
+  ['anpr-lite v4','Number-plate detection and OCR','RPi 5 + Hailo-8L','4.8 MB','Acc 97.1%','21 ms'],
+  ['smoke-haze v1','Smoke and haze with thermal fusion','Cortex-M7 + Orin','64 KB','Recall 0.93','9 ms'],
+];
+let vibHist=[];
+function renderIoT(c){
+  const my=agentRun;
+  vibHist=Array.from({length:60},(_,i)=>2+Math.random()*.5);
+  c.innerHTML=`
+    <div class="eyebrow">Capability 09 · TinyML, IoT sensors &amp; OTA fleet</div>
+    <h1 class="page-h">Machine learning on devices that run on a coin-cell battery.</h1>
+    <p class="page-sub">Quantised models of a few kilobytes run directly on microcontrollers and detect vibration anomalies, glass breaking, motion and air-quality drift on the device itself. Only the resulting event travels over LoRaWAN or MQTT, which saves bandwidth and battery and keeps working when the network is down.</p>
+    <div class="kpi-grid">
+      ${kpi('Devices online','1,284','99.2% heartbeat','#2FA3A8')}
+      ${kpi('TinyML models deployed','9','int8 · avg 74 KB','#5B4BC4')}
+      ${kpi('On-device inference','6.8 ms','median, Cortex-M class','#1F7A4D')}
+      ${kpi('Uplink data saved','96%','events, not raw streams','#B7791F')}
+    </div>
+    <div class="panel"><h3>Signal path <span class="tag">sensor → decision</span></h3>
+      <div class="chain">
+        ${[['Sensor','accel · mic · PIR · thermal','#2FA3A8'],['MCU inference','TinyML int8 · 4–120 ms','#5B4BC4'],['Gateway','LoRaWAN · MQTT · BLE mesh','#B7791F'],['Edge hub','buffering · fusion · rules','#1F7A4D'],['Event bus','Kafka · SynIntel','#2458B8'],['Graph + agent','asset, shift, incident','#B23A30']].map((l,i)=>`${i?'<div class="ar">→</div>':''}<div class="lk" style="--c:${l[2]}"><div class="t">${l[0]}</div><div class="s">${l[1]}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="section-row">
+      <div class="panel"><h3>Live sensors <span class="tag">updates every second</span></h3>
+        <table id="dev-table"></table>
+        <h3 style="margin-top:18px;">VIB-M3-02 · vibration RMS <span class="tag" id="vib-tag">normal</span></h3>
+        <canvas id="vib" width="640" height="140" style="width:100%; height:auto; display:block;"></canvas>
+        <div class="callout" id="vib-note"><b>What the model sees:</b> the autoencoder on the STM32 compares each 1-second window with the motor's learned normal signature. Reconstruction error above 0.8 raises an anomaly event.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="panel"><h3>Site map · Pune Plant 2</h3>
+          <div class="floor"><svg viewBox="0 0 420 260">
+            <rect x="10" y="10" width="400" height="240" rx="6" fill="#F3F5F8" stroke="#DCE1E9"/>
+            <rect x="24" y="24" width="170" height="110" fill="#fff" stroke="#DCE1E9"/><text x="32" y="40" font-family="IBM Plex Mono" font-size="9" fill="#667085">PRODUCTION · LINE 3</text>
+            <rect x="206" y="24" width="190" height="110" fill="#fff" stroke="#DCE1E9"/><text x="214" y="40" font-family="IBM Plex Mono" font-size="9" fill="#667085">WAREHOUSE</text>
+            <rect x="24" y="146" width="110" height="90" fill="#fff" stroke="#DCE1E9"/><text x="32" y="162" font-family="IBM Plex Mono" font-size="9" fill="#667085">DC-1</text>
+            <rect x="146" y="146" width="160" height="90" fill="#fff" stroke="#DCE1E9"/><text x="154" y="162" font-family="IBM Plex Mono" font-size="9" fill="#667085">LOADING BAY 2</text>
+            <line x1="410" y1="10" x2="410" y2="250" stroke="#B23A30" stroke-width="3" stroke-dasharray="6 4"/><text x="318" y="246" font-family="IBM Plex Mono" font-size="9" fill="#B23A30">EAST FENCE</text>
+            ${[[90,90,'#B7791F','VIB-M3-02'],[150,70,'#1F7A4D','TS-3-07'],[160,110,'#1F7A4D','CAM-18'],[300,80,'#1F7A4D','AUD-WH-04'],[260,110,'#1F7A4D','CAM-07'],[70,200,'#1F7A4D','AQ-DC1-01'],[110,220,'#1F7A4D','DOOR-DC1'],[220,200,'#B23A30','CAM-04'],[395,190,'#B23A30','PIR-E-03'],[395,120,'#B23A30','CAM-11'],[340,210,'#1F7A4D','CAM-01']].map(d=>`<g><circle cx="${d[0]}" cy="${d[1]}" r="9" fill="${d[2]}" opacity=".18"><animate attributeName="r" values="6;12;6" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="${d[0]}" cy="${d[1]}" r="4.5" fill="${d[2]}"/><text x="${d[0]>370?d[0]-8:d[0]+7}" y="${d[1]-7}" text-anchor="${d[0]>370?"end":"start"}" font-family="IBM Plex Mono" font-size="8" fill="#3A4458">${d[3]}</text></g>`).join('')}
+          </svg></div>
+          <div class="meta-row"><span><b style="color:var(--danger)">●</b> alert</span><span><b style="color:var(--amber)">●</b> anomaly</span><span><b style="color:var(--ok)">●</b> normal</span></div>
+        </div>
+        <div class="panel"><h3>OTA rollout <span class="tag">signed · staged</span></h3>
+          <div style="font-size:13px;"><b>glassbreak-kws v2.1</b> → 312 acoustic nodes</div>
+          <div class="ota"><i id="ota" style="width:68%"></i></div>
+          <div class="mono" style="color:var(--muted); font-size:11px;" id="ota-txt">214 / 312 updated · canary stage passed · 0 rollbacks</div>
+          <div class="callout"><b>Safe updates:</b> firmware and models are signed, installed to an A/B partition, and roll back automatically if a device misses 3 heartbeats after updating.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px;"><h3>TinyML model registry</h3>
+      <table><tr><th>Model</th><th>Task</th><th>Target hardware</th><th>Size</th><th>Quality</th><th>Latency</th></tr>
+      ${MODELS.map(m=>`<tr><td><b style="color:var(--ink)">${m[0]}</b></td><td>${m[1]}</td><td class="mono">${m[2]}</td><td class="mono">${m[3]}</td><td class="mono">${m[4]}</td><td class="mono">${m[5]}</td></tr>`).join('')}</table>
+    </div>`;
+  let tick=0, ota=214;
+  const step=()=>{
+    if(my!==agentRun) return;
+    tick++;
+    const anomaly = (tick%16)>7;
+    const vib = anomaly ? 5+Math.random()*1.4 : 2+Math.random()*.6;
+    vibHist.push(vib); vibHist.shift();
+    const vals = DEVICES.map(d=>{
+      let v;
+      if(d.id==='VIB-M3-02') v=vib;
+      else if(d.id==='PIR-E-03') v=(tick%16)>13?2:0;
+      else if(d.id==='DOOR-DC1') v=0;
+      else v=d.base*(1+(Math.random()-.5)*.04);
+      return v;
+    });
+    const dt=document.getElementById('dev-table'); if(!dt) return;
+    dt.innerHTML='<tr><th>Device</th><th>Location</th><th>MCU · link</th><th>Battery</th><th>Reading</th></tr>'+DEVICES.map((d,i)=>{
+      const v=vals[i], hot=v>=d.warnAt;
+      const shown = d.id==='DOOR-DC1' ? 'closed' : (v<10? v.toFixed(1) : Math.round(v))+' '+d.unit;
+      return `<tr><td><b style="color:var(--ink)">${d.id}</b><div style="font-size:11px;color:var(--muted)">${d.kind}</div></td><td>${d.where}</td><td class="mono">${d.mcu}<br>${d.link}</td><td class="mono">${d.batt}</td><td class="live-val ${hot?'hot':''}">${shown}${hot?' ⚠':''}</td></tr>`;
+    }).join('');
+    const cv=document.getElementById('vib'), ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,640,140);
+    ctx.strokeStyle='#DCE1E9'; ctx.lineWidth=1; for(let g=0;g<4;g++){ ctx.beginPath(); ctx.moveTo(0,20+g*35); ctx.lineTo(640,20+g*35); ctx.stroke(); }
+    const y=v=>130-v*16;
+    ctx.strokeStyle='#B23A30'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(0,y(4.5)); ctx.lineTo(640,y(4.5)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#B23A30'; ctx.font='10px IBM Plex Mono'; ctx.fillText('anomaly threshold',8,y(4.5)-4);
+    ctx.strokeStyle='#2FA3A8'; ctx.lineWidth=2; ctx.beginPath();
+    vibHist.forEach((v,i)=>{ const x=i*(640/59); i?ctx.lineTo(x,y(v)):ctx.moveTo(x,y(v)); }); ctx.stroke();
+    const tag=document.getElementById('vib-tag');
+    tag.textContent=anomaly?'anomaly · score 0.91':'normal · score 0.12'; tag.style.color=anomaly?'var(--danger)':'var(--ok)';
+    document.getElementById('vib-note').innerHTML = anomaly
+      ? '<b>Anomaly detected on-device:</b> the error pattern matches outer-race bearing wear. Maintenance work order WO-88142 was drafted in SAP PM, and the Plant Maintenance agent estimates about 11 days to failure.'
+      : '<b>What the model sees:</b> the autoencoder on the STM32 compares each 1-second window with the motor\'s learned normal signature. Reconstruction error above 0.8 raises an anomaly event.';
+    if(tick%3===0 && ota<312){ ota+=1; document.getElementById('ota').style.width=(ota/312*100)+'%'; document.getElementById('ota-txt').textContent=`${ota} / 312 updated · canary stage passed · 0 rollbacks`; }
+    setTimeout(step,1000);
+  };
+  step();
 }
 
 /* ============================= BOOT ============================= */

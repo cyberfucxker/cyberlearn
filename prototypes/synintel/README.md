@@ -4,7 +4,7 @@ Same format as the Muthokunju prototype: a self-contained HTML walkthrough with 
 
 - `dist/SynIntel_Prototype_Walkthrough.html` — **the deliverable** (single file, opens offline)
 - `dist/SynIntel_Prototype.zip` — walkthrough + console + video + screenshots, packaged like the reference zip
-- `src/console.html` — the interactive SynIntel console (10 screens covering all 8 capability areas)
+- `src/console.html` — the interactive SynIntel console (12 screens: all 8 capability areas plus edge AI, IoT & intelligent CCTV)
 - `src/walkthrough.html` — walkthrough template (`{{SHOT_*}}`, `{{VIDEO}}`, `{{CONSOLE}}` placeholders)
 - `build.py` — inlines everything into `dist/` (`python3 build.py`)
 

@@ -50,8 +50,9 @@
   .topnav-inner{max-width:1180px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px;}
   .topnav-brand{font-family:var(--font-mono); font-size:12.5px; letter-spacing:.02em; color:var(--muted-d);}
   .topnav-brand strong{color:var(--inverse); font-weight:600;}
-  .topnav-links{display:flex; gap:18px; list-style:none;}
-  .topnav-links a{font-size:12.5px; color:var(--muted-d); text-decoration:none; padding:4px 0; border-bottom:1px solid transparent; transition:color .15s ease, border-color .15s ease;}
+  .topnav-links{display:flex; gap:15px; list-style:none; white-space:nowrap;}
+  @media (max-width:1240px){ .topnav-brand span.sub{display:none;} }
+  .topnav-links a{font-size:12px; color:var(--muted-d); text-decoration:none; padding:4px 0; border-bottom:1px solid transparent; transition:color .15s ease, border-color .15s ease;}
   .topnav-links a:hover{color:var(--inverse); border-color:var(--violet);}
   @media (max-width:980px){ .topnav-links{display:none;} }
 
@@ -103,6 +104,8 @@
   .cap .stack{margin-top:12px; font-family:var(--font-mono); font-size:10.5px; color:#C4C9D6; line-height:1.6;}
   .cap .where{margin-top:auto; padding-top:14px; font-family:var(--font-mono); font-size:10.5px; color:var(--amber);}
   .cap .where a{text-decoration:none;}
+  .cap-wide{grid-column:1 / -1; background:linear-gradient(120deg,#231A22,#12161F 60%); border-color:rgba(224,100,90,.35);}
+  .cap-wide p{max-width:860px;}
   .cap .where a:hover{text-decoration:underline;}
 
   /* ---------- PAPER MODULE ---------- */
@@ -249,11 +252,12 @@
 
 <nav class="topnav">
   <div class="topnav-inner">
-    <div class="topnav-brand"><strong>SynIntel.ai</strong> — partner prototype walkthrough</div>
+    <div class="topnav-brand"><strong>SynIntel.ai</strong><span class="sub"> — partner prototype walkthrough</span></div>
     <ul class="topnav-links">
       <li><a href="#brief">Brief</a></li>
       <li><a href="#capabilities">Capabilities</a></li>
       <li><a href="#ask">Prototype</a></li>
+      <li><a href="#edge">Edge &amp; CCTV</a></li>
       <li><a href="#console">Live console</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#team">Team</a></li>
@@ -270,12 +274,12 @@
   <div class="cover-stamp"><b>SI-DECK · 01</b>PARTNER<br>EVALUATION<br>RESPONSE</div>
   <div class="cover-eyebrow">A partner response built the same way we'd build the product: as working software, not a slide deck.</div>
   <h1>Not a capability deck.<br>A working slice of <em>SynIntel.</em></h1>
-  <p class="cover-sub">You asked for partners across eight capability areas, from multi-agent AI to access control. Rather than describing each one, we built a small working version of the SynIntel platform that covers all eight. The recorded agent run, the screens and the console embedded further down are all running code.</p>
+  <p class="cover-sub">You asked for partners across eight capability areas, from multi-agent AI to access control. Rather than describing each one, we built a small working version of the SynIntel platform that covers all eight. We also added a ninth: TinyML, IoT and intelligent CCTV for physical security. The recorded agent run, the screens and the console embedded further down are all running code.</p>
   <div class="cover-meta">
     <div><div class="k">Prepared for</div><div class="v">SynIntel.ai — Partner evaluation</div></div>
     <div><div class="k">Prepared by</div><div class="v">Techtaru Digital</div></div>
     <div><div class="k">Format</div><div class="v">Interactive HTML, opens in any browser</div></div>
-    <div><div class="k">Capability areas shown</div><div class="v">8 of 8</div></div>
+    <div><div class="k">Capability areas shown</div><div class="v">8 of 8, plus edge AI &amp; CCTV</div></div>
     <div><div class="k">Status</div><div class="v">Ready for walkthrough</div></div>
   </div>
 </header>
@@ -293,6 +297,7 @@
     <table class="index">
       <tr><th>YOU ASKED FOR</th><th>WHAT WE'RE SHOWING</th><th>GO TO</th></tr>
       <tr><td>Relevant technology capabilities</td><td>All eight areas, each with our stack and the part of the prototype that demonstrates it</td><td><a href="#capabilities">SI-010 →</a></td></tr>
+      <tr><td>Additional service: edge AI, IoT &amp; CCTV</td><td>On-device TinyML, sensor fleets and AI-powered camera monitoring feeding the same intelligence layer</td><td><a href="#edge">SI-109 →</a></td></tr>
       <tr><td>Similar enterprise projects delivered</td><td>Enterprise ecosystem and intelligence builds, and which SynIntel areas each one maps to</td><td><a href="#projects">SI-200 →</a></td></tr>
       <tr><td>Technical expertise and team strengths</td><td>Team composition by discipline and the areas where we are strongest</td><td><a href="#team">SI-300 →</a></td></tr>
       <tr><td>Industry / domain experience</td><td>Depth by vertical, with evidence for each</td><td><a href="#domains">SI-310 →</a></td></tr>
@@ -321,6 +326,7 @@
       <div class="cap" style="--c:#E0A458"><span class="n">06</span><h4>Enterprise Integrations &amp; APIs</h4><p>Connectors for ERP, CRM, ITSM, document and HR systems. A versioned, rate-limited public API. Write-back only through approved actions.</p><div class="stack">SAP · Salesforce · ServiceNow · M365 · Workday · OpenAPI 3.1</div><div class="where"><a href="#integrations">Seen in → SI-105</a></div></div>
       <div class="cap" style="--c:#E0645A"><span class="n">07</span><h4>Security, Governance &amp; Access Control</h4><p>RBAC and ABAC applied at retrieval time, field-level masking of personal data, prompt-injection defence and a tamper-evident audit trail.</p><div class="stack">OPA · SAML / OIDC · SCIM · KMS · SOC 2 / ISO 27001 mapping</div><div class="where"><a href="#governance">Seen in → SI-106</a></div></div>
       <div class="cap" style="--c:#D0647F"><span class="n">08</span><h4>Industry-specific AI</h4><p>Industry packs, each containing an ontology extension, pre-built connectors, tuned agents and golden evaluation sets.</p><div class="stack">Manufacturing · Retail &amp; Distribution · BFSI · Healthcare · Energy</div><div class="where"><a href="#industry">Seen in → SI-108</a></div></div>
+      <div class="cap cap-wide" style="--c:#E0645A"><span class="n">09 · ADDITIONAL SERVICE</span><h4>TinyML, IoT &amp; Intelligent CCTV / Security Systems</h4><p>Physical-world signals for the same intelligence layer. Quantised models run on microcontrollers and camera edge boxes to detect intrusions, PPE violations, number plates, smoke, machine anomalies and glass breaking. Only events leave the site, never raw video, and each one becomes a graph entity that the agents can reason over.</p><div class="stack">TensorFlow Lite Micro · Edge Impulse · ONNX / TensorRT · ESP32-S3 · STM32 · Jetson Orin · Hailo · LoRaWAN · MQTT · ONVIF / RTSP · signed OTA</div><div class="where"><a href="#edge">Seen in → SI-109, SI-109b</a></div></div>
     </div>
   </div>
 </section>
@@ -543,14 +549,77 @@
   </div>
 </section>
 
+<!-- ============ SI-109 EDGE CCTV (VIDEO) ============ -->
+<section id="edge">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#E0645A"></span>SI-109 · EDGE AI, IoT &amp; INTELLIGENT CCTV</span>
+      <h2>The ninth capability: security for the physical site.</h2>
+      <p>Enterprise intelligence also depends on what happens at the gate, on the shop floor and along the fence. We design and build TinyML and IoT monitoring systems and AI-powered CCTV, and connect them to SynIntel. A camera or sensor event then becomes a record the agents can reason over.</p>
+    </div>
+    <div class="panel module reverse">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#B23A30"></span>SI-109 · INTELLIGENT CCTV &amp; SECURITY</span>
+        <h3>Cameras that report events, not hours of footage.</h3>
+        <p class="lede">Vision models run on a Jetson or Hailo edge box beside the cameras. Each site sends SynIntel events such as a plate read, a missing hi-vis vest or a tripwire crossing. A Security Analyst agent combines related signals (thermal camera, PIR sensor, fence vibration) into one incident with a recommended next step.</p>
+        <ul class="feature-list">
+          <li><b>Six example detections</b>: ANPR at the gate, PPE in the loading bay, aisle occupancy, thermal perimeter intrusion, server-room tamper, smoke and haze on the line</li>
+          <li><b>Multi-sensor fusion</b>, which suppresses 92% of false alarms before anyone is paged</li>
+          <li><b>Privacy on the device</b>: faces are blurred before storage, and unblurring requires the Investigation role and is recorded in the audit log</li>
+          <li><b>Works with existing cameras</b> over ONVIF / RTSP, with no camera replacement</li>
+        </ul>
+        <div class="stat-row">
+          <div class="stat"><b>148</b><span>CAMERAS ON EDGE AI</span></div>
+          <div class="stat"><b>14 ms</b><span>PPE INFERENCE</span></div>
+          <div class="stat"><b>0 GB</b><span>VIDEO SENT TO CLOUD</span></div>
+        </div>
+        <div class="pill">Recorded walkthrough of the working camera wall</div>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/edge/cctv</span></div>
+          <video class="player" style="object-fit:contain" controls playsinline muted preload="metadata" poster="{{SHOT_cctvwall}}" src="{{VIDEO_edge}}"></video>
+        </div>
+        <p class="scroll-hint">▶ camera wall → individual feeds → TinyML sensor anomaly</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-109b TINYML / IOT ============ -->
+<section id="iot">
+  <div class="wrap">
+    <div class="panel module">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#2FA3A8"></span>SI-109b · TinyML &amp; IoT FLEET</span>
+        <h3>Machine learning in 38 kilobytes, on battery power.</h3>
+        <p class="lede">Some sensors can't stream data: they run on batteries, sit on a LoRaWAN link, or are installed where the network is unreliable. For these we run the model on the microcontroller itself. A vibration autoencoder on an STM32 detects bearing wear about 11 days before failure and drafts the SAP PM work order.</p>
+        <ul class="feature-list">
+          <li><b>Model registry</b> of int8 models from 38 KB (vibration) to 6.2 MB (PPE), each with its size, accuracy and latency on the target hardware</li>
+          <li><b>Live site map</b> of cameras, PIR, door, thermal, acoustic and air-quality sensors</li>
+          <li><b>Signed OTA rollouts</b> in stages, with A/B partitions and automatic rollback</li>
+          <li><b>96% less uplink data</b>, because devices send events rather than raw streams</li>
+        </ul>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/edge/iot</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_iot}}" alt="SynIntel TinyML and IoT fleet screen"></div>
+        </div>
+        <p class="scroll-hint">↕ the sensor readings update live in the console below</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ SI-110 LIVE CONSOLE ============ -->
 <section id="console">
   <div class="wrap">
     <div class="section-head">
       <span class="swatch-tag on-dark"><span class="chip" style="background:#7B6CF0"></span>SI-110 · LIVE CONSOLE</span>
       <h2>All of it, running inside this document.</h2>
-      <p>This is the full prototype console, embedded and running. It has ten screens covering the eight capability areas, plus an overview with a live event stream and the multi-agent query screen.</p>
-      <p class="kicker-note">Try this: open "Ask SynIntel" and press Run agents. Then open "Security &amp; Governance" and switch roles to see the same record masked differently.</p>
+      <p>This is the full prototype console, embedded and running. It has twelve screens: an overview with a live event stream, the multi-agent query screen, one screen for each of the eight capability areas, and two edge-security screens.</p>
+      <p class="kicker-note">Try this: open "Ask SynIntel" and press Run agents. Then open "Security &amp; Governance" and switch roles to see the same record masked differently. Finally, open "Intelligent CCTV" and click any camera.</p>
     </div>
     <div class="console-shell">
       <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai — enterprise intelligence console (prototype)</span></div>
@@ -641,6 +710,7 @@
           <tr><td>Full-stack &amp; mobile engineering</td><td class="num"><span class="fill">[#]</span></td><td>03</td></tr>
           <tr><td>Cloud, DevOps &amp; SRE</td><td class="num"><span class="fill">[#]</span></td><td>04</td></tr>
           <tr><td>Integration engineering</td><td class="num"><span class="fill">[#]</span></td><td>06</td></tr>
+          <tr><td>Embedded, TinyML &amp; IoT engineering</td><td class="num"><span class="fill">[#]</span></td><td>09</td></tr>
           <tr><td>Security &amp; compliance</td><td class="num"><span class="fill">[#]</span></td><td>07</td></tr>
           <tr><td>Product, UX &amp; delivery management</td><td class="num"><span class="fill">[#]</span></td><td>All</td></tr>
         </table>
@@ -686,9 +756,10 @@
           <li><span>LLM / agent engineers</span><span>2–3</span></li>
           <li><span>Knowledge-graph engineer</span><span>1</span></li>
           <li><span>ML / evaluation engineer</span><span>1</span></li>
+          <li><span>Embedded / TinyML engineer (edge add-on)</span><span>1–2</span></li>
           <li><span>Can start</span><span class="fill">[wk X]</span></li>
         </ul>
-        <div class="own">Owns → 01 · 05 · 08</div>
+        <div class="own">Owns → 01 · 05 · 08 · 09</div>
       </div>
       <div class="panel pod">
         <span class="ptag">POD B</span><h4>Platform pod</h4>
@@ -753,7 +824,7 @@
     <div class="section-head">
       <span class="swatch-tag on-dark"><span class="chip" style="background:#6B7183"></span>SI-6XX · WHAT'S SEALED</span>
       <h2>Proposed next-phase modules.</h2>
-      <p>Each of these six next-phase modules plugs into a part of the architecture that already exists in the prototype. They stay switched off until SynIntel decides which roadmap themes to prioritise.</p>
+      <p>Each of these nine next-phase modules plugs into a part of the architecture that already exists in the prototype. They stay switched off until SynIntel decides which roadmap themes to prioritise.</p>
     </div>
     <div class="locked-grid">
       <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Agent marketplace</h4><p>Customers and partners publish agents built on a shared spec. Each agent passes an evaluation gate before it can be listed, and customers can install one per tenant.</p><div class="tie">Ties to → Agent Orchestrator, Eval harness</div></div>
@@ -762,6 +833,9 @@
       <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Customer-managed keys</h4><p>Encryption keys held by the customer, per tenant, with revocation. Banks and hospitals typically require this before they sign.</p><div class="tie">Ties to → Security &amp; Governance, Cloud</div></div>
       <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>BFSI industry pack</h4><p>KYC / AML entity resolution, analysis of how regulatory changes affect a bank, and a credit-memo drafting agent, with a compliance profile mapped to local regulators.</p><div class="tie">Ties to → Industry Packs, Knowledge Graph</div></div>
       <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Healthcare industry pack</h4><p>HL7 / FHIR connectors, clinical document summarisation and claims anomaly detection, with controls for protected health information (PHI) in the policy engine.</p><div class="tie">Ties to → Industry Packs, Governance</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Federated learning at the edge</h4><p>TinyML models learn each machine's normal behaviour on-site and share only weight updates, never sensor data, so the whole fleet improves without data leaving any site.</p><div class="tie">Ties to → TinyML &amp; IoT Fleet, Governance</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Natural-language video search</h4><p>Queries like "Show every forklift near a person without a vest last week" answered from event metadata and on-site embeddings, without uploading footage.</p><div class="tie">Ties to → Intelligent CCTV, Ask SynIntel</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Access control &amp; visitor integration</h4><p>Badge readers, turnstiles and the visitor system connected to the graph, so a tailgating event is checked against the roster and the visitor list automatically.</p><div class="tie">Ties to → Intelligent CCTV, Integrations</div></div>
     </div>
   </div>
 </section>

@@ -11,6 +11,7 @@ html = (SRC / "walkthrough.html").read_text()
 for shot in (SRC / "shots").glob("*.png"):
     html = html.replace("{{SHOT_%s}}" % shot.stem, data_uri(shot, "image/png"))
 html = html.replace("{{VIDEO}}", data_uri(SRC / "walkthrough.webm", "video/webm"))
+html = html.replace("{{VIDEO_edge}}", data_uri(SRC / "edge.webm", "video/webm"))
 html = html.replace("{{CONSOLE}}", data_uri(SRC / "console.html", "text/html"))
 assert "{{" not in html, "unfilled placeholder"
 
@@ -19,7 +20,8 @@ out = DIST / "SynIntel_Prototype_Walkthrough.html"
 out.write_text(html)
 shutil.copy(SRC / "console.html", DIST / "SynIntel_Console.html")
 shutil.copy(SRC / "walkthrough.webm", DIST / "SynIntel_Agent_Walkthrough.webm")
-for i, name in enumerate(["overview", "ask", "graph", "governance"], 1):
+shutil.copy(SRC / "edge.webm", DIST / "SynIntel_Edge_CCTV_Walkthrough.webm")
+for i, name in enumerate(["overview", "ask", "graph", "governance", "cctv", "iot"], 1):
     shutil.copy(SRC / "shots" / f"{name}.png", DIST / f"{i}_{name}.png")
 
 with zipfile.ZipFile(DIST / "SynIntel_Prototype.zip", "w", zipfile.ZIP_DEFLATED) as z:
