@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SynIntel.ai — Partner Prototype Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /*
+    EDITING NOTE (remove before sending, or leave; it is invisible):
+    Anything wrapped in <span class="fill">…</span> is a Techtaru fact that must be
+    confirmed or replaced (headcounts, case studies, dates). They render with a dashed
+    amber underline so none slip through unnoticed.
+  */
+  :root{
+    --canvas:#0B101B;
+    --canvas-deep:#070B13;
+    --paper:#F2F1EC;
+    --paper-deep:#E4E3DC;
+    --ink:#121826;
+    --ink-soft:#3E4658;
+    --muted-l:#6B7183;
+    --inverse:#E8EAF0;
+    --muted-d:#9CA3B5;
+    --violet:#7B6CF0;
+    --violet-deep:#4E3FC0;
+    --amber:#E0A458;
+    --teal:#2FA3A8;
+    --rose:#D0647F;
+    --line-d:rgba(232,234,240,0.13);
+    --line-l:rgba(18,24,38,0.12);
+    --font-display:'Source Serif 4', Georgia, serif;
+    --font-body:'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--font-body); background:var(--canvas); color:var(--inverse); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--violet); color:#fff;}
+  a{color:inherit;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  @media (max-width:600px){ .wrap{padding:0 16px;} }
+
+  .fill{border-bottom:1.5px dashed var(--amber); padding:0 1px;}
+
+  /* ---------- TOP NAV ---------- */
+  .topnav{position:sticky; top:0; z-index:50; background:rgba(11,16,27,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line-d);}
+  .topnav-inner{max-width:1180px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px;}
+  .topnav-brand{font-family:var(--font-mono); font-size:12.5px; letter-spacing:.02em; color:var(--muted-d);}
+  .topnav-brand strong{color:var(--inverse); font-weight:600;}
+  .topnav-links{display:flex; gap:18px; list-style:none;}
+  .topnav-links a{font-size:12.5px; color:var(--muted-d); text-decoration:none; padding:4px 0; border-bottom:1px solid transparent; transition:color .15s ease, border-color .15s ease;}
+  .topnav-links a:hover{color:var(--inverse); border-color:var(--violet);}
+  @media (max-width:980px){ .topnav-links{display:none;} }
+
+  .swatch-tag{display:inline-flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:12px; letter-spacing:.02em; color:var(--muted-l); margin-bottom:18px;}
+  .swatch-tag .chip{width:14px; height:14px; border-radius:3px; flex-shrink:0; box-shadow:0 0 0 1px rgba(0,0,0,0.12) inset;}
+  .swatch-tag.on-dark{color:var(--muted-d);}
+
+  /* ---------- COVER ---------- */
+  .cover{min-height:92vh; display:flex; flex-direction:column; justify-content:center; position:relative; padding:120px 0 80px;
+    background:radial-gradient(ellipse 900px 500px at 82% -8%, rgba(123,108,240,0.22), transparent 60%), radial-gradient(ellipse 700px 500px at 8% 105%, rgba(47,163,168,0.15), transparent 60%), var(--canvas); overflow:hidden;}
+  .cover-stamp{position:absolute; top:64px; right:32px; width:156px; padding:14px 12px; border:1.5px dashed rgba(232,234,240,0.35); border-radius:4px; transform:rotate(3deg); font-family:var(--font-mono); font-size:10.5px; line-height:1.5; color:var(--muted-d); text-align:center; letter-spacing:.03em;}
+  .cover-stamp b{display:block; color:var(--amber); font-size:11px; margin-bottom:3px;}
+  @media (max-width:820px){ .cover-stamp{display:none;} }
+  .cover-eyebrow{font-family:var(--font-mono); font-size:13px; color:var(--muted-d); margin-bottom:26px; max-width:460px;}
+  .cover h1{font-family:var(--font-display); font-weight:600; font-size:clamp(40px, 6.4vw, 78px); line-height:1.04; letter-spacing:-0.01em; max-width:880px;}
+  .cover h1 em{font-style:italic; color:var(--violet);}
+  .cover-sub{margin-top:26px; max-width:600px; font-size:17.5px; color:var(--muted-d); line-height:1.65;}
+  .cover-meta{margin-top:56px; display:flex; flex-wrap:wrap; gap:36px; border-top:1px solid var(--line-d); padding-top:22px; max-width:880px;}
+  .cover-meta .k{font-family:var(--font-mono); color:var(--muted-d); font-size:11px; letter-spacing:.02em; margin-bottom:5px;}
+  .cover-meta .v{color:var(--inverse); font-weight:500; font-size:14px;}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:96px 0;}
+  section.tight{padding:64px 0;}
+  @media (max-width:600px){ section{padding:64px 0;} }
+  .section-head{max-width:680px; margin-bottom:44px;}
+  .section-head h2{font-family:var(--font-display); font-weight:600; font-size:clamp(28px, 3.6vw, 42px); line-height:1.12;}
+  .section-head p{margin-top:14px; font-size:15.5px; color:var(--muted-d); max-width:600px;}
+  .kicker-note{font-family:var(--font-mono); font-size:12px; color:var(--muted-d); max-width:640px; margin-top:10px;}
+  .divider{height:1px; background:var(--line-d); border:0; max-width:1180px; margin:0 auto;}
+
+  /* ---------- RESPONSE INDEX ---------- */
+  .index{width:100%; border-collapse:collapse; font-size:14px;}
+  .index th{text-align:left; font-family:var(--font-mono); font-size:10.5px; font-weight:500; letter-spacing:.05em; color:var(--muted-d); padding:10px 12px; border-bottom:1px solid var(--line-d);}
+  .index td{padding:13px 12px; border-bottom:1px solid var(--line-d); color:var(--muted-d); vertical-align:top;}
+  .index td:first-child{color:var(--inverse); font-weight:500; width:34%;}
+  .index a{color:var(--amber); text-decoration:none; font-family:var(--font-mono); font-size:12px; white-space:nowrap;}
+  .index a:hover{text-decoration:underline;}
+  @media (max-width:700px){ .index td:nth-child(2){display:none;} .index th:nth-child(2){display:none;} }
+
+  /* ---------- CAPABILITY GRID ---------- */
+  .cap-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  @media (max-width:1000px){ .cap-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .cap-grid{grid-template-columns:1fr;} }
+  .cap{background:linear-gradient(160deg,#151C2C,#0F1522); border:1px solid var(--line-d); border-radius:6px; padding:22px 20px; border-top:3px solid var(--c); display:flex; flex-direction:column;}
+  .cap .n{font-family:var(--font-mono); font-size:10.5px; color:var(--muted-d); letter-spacing:.05em;}
+  .cap h4{font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.25; margin:6px 0 10px;}
+  .cap p{font-size:13px; color:var(--muted-d); line-height:1.55;}
+  .cap .stack{margin-top:12px; font-family:var(--font-mono); font-size:10.5px; color:#C4C9D6; line-height:1.6;}
+  .cap .where{margin-top:auto; padding-top:14px; font-family:var(--font-mono); font-size:10.5px; color:var(--amber);}
+  .cap .where a{text-decoration:none;}
+  .cap .where a:hover{text-decoration:underline;}
+
+  /* ---------- PAPER MODULE ---------- */
+  .panel{background:var(--paper); color:var(--ink); border-radius:6px; box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);}
+  .module{display:grid; grid-template-columns:0.84fr 1.16fr; align-items:stretch;}
+  .module.reverse{grid-template-columns:1.16fr 0.84fr;}
+  .module.reverse .module-text{order:2;}
+  .module.reverse .module-visual{order:1;}
+  @media (max-width:900px){ .module, .module.reverse{grid-template-columns:1fr;} .module.reverse .module-text, .module.reverse .module-visual{order:initial;} }
+  .module-text{padding:52px 48px; display:flex; flex-direction:column; justify-content:center;}
+  @media (max-width:600px){ .module-text{padding:32px 22px;} }
+  .module-text h3{font-family:var(--font-display); font-weight:600; font-size:29px; line-height:1.18;}
+  .module-text .lede{margin-top:14px; font-size:15px; color:var(--ink-soft); line-height:1.65; max-width:440px;}
+  .feature-list{list-style:none; margin-top:22px; display:flex; flex-direction:column; gap:10px;}
+  .feature-list li{font-size:13.5px; color:var(--ink-soft); padding-left:18px; position:relative; line-height:1.5;}
+  .feature-list li::before{content:''; position:absolute; left:0; top:7px; width:6px; height:6px; border-radius:1px; background:var(--violet-deep);}
+  .feature-list b{color:var(--ink); font-weight:600;}
+  .stat-row{display:flex; gap:26px; margin-top:24px; flex-wrap:wrap;}
+  .stat-row .stat b{display:block; font-family:var(--font-display); font-size:22px; color:var(--violet-deep);}
+  .stat-row .stat span{font-size:11px; color:var(--muted-l); font-family:var(--font-mono);}
+  .module-visual{background:var(--paper-deep); padding:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:0 6px 6px 0;}
+  .module.reverse .module-visual{border-radius:6px 0 0 6px;}
+  @media (max-width:900px){ .module-visual, .module.reverse .module-visual{border-radius:0 0 6px 6px;} }
+  .pill{display:inline-block; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.03em; color:var(--violet-deep); background:rgba(123,108,240,0.12); border:1px solid rgba(123,108,240,0.32); padding:3px 9px; border-radius:20px; margin-top:22px; align-self:flex-start;}
+  .module-stack{margin-top:18px; font-family:var(--font-mono); font-size:11px; color:var(--muted-l); border-top:1px solid var(--line-l); padding-top:12px;}
+
+  .browser-frame{width:100%; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 18px 40px -18px rgba(0,0,0,0.45); border:1px solid rgba(0,0,0,0.08);}
+  .browser-bar{display:flex; align-items:center; gap:8px; padding:9px 12px; background:#E6E6EE; border-bottom:1px solid rgba(0,0,0,0.07);}
+  .browser-dot{width:8px; height:8px; border-radius:50%; background:#C9CAD6;}
+  .browser-url{margin-left:8px; font-family:var(--font-mono); font-size:10.5px; color:#707489; background:#fff; border-radius:4px; padding:3px 10px; flex:1; border:1px solid rgba(0,0,0,0.06); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .browser-scroll{max-height:540px; overflow-y:auto; background:#fff; scrollbar-width:thin;}
+  .browser-scroll::-webkit-scrollbar{width:9px;}
+  .browser-scroll::-webkit-scrollbar-thumb{background:#C9CAD6; border-radius:6px;}
+  .browser-scroll::-webkit-scrollbar-track{background:#F2F1EC;}
+  .scroll-hint{text-align:center; font-family:var(--font-mono); font-size:10px; color:var(--muted-l); padding:8px 0 2px; letter-spacing:.03em;}
+  video.player{width:100%; display:block; background:#0B101B; aspect-ratio:16/10; object-fit:cover; object-position:top;}
+
+  /* ---------- LIVE CONSOLE ---------- */
+  .console-shell{border-radius:8px; overflow:hidden; border:1px solid rgba(0,0,0,0.35); box-shadow:0 30px 70px -30px rgba(0,0,0,0.75);}
+  .console-frame{width:100%; height:720px; border:0; display:block; background:#F3F5F8;}
+  @media (max-width:700px){ .console-frame{height:560px;} }
+
+  /* ---------- CASES ---------- */
+  .case-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:860px){ .case-grid{grid-template-columns:1fr;} }
+  .case{padding:30px 30px 26px; display:flex; flex-direction:column;}
+  .case .ind{font-family:var(--font-mono); font-size:11px; color:var(--muted-l); letter-spacing:.03em;}
+  .case h4{font-family:var(--font-display); font-weight:600; font-size:21px; line-height:1.25; margin:6px 0 12px;}
+  .case dl{display:grid; grid-template-columns:96px 1fr; gap:8px 14px; font-size:13.5px;}
+  .case dt{font-family:var(--font-mono); font-size:10.5px; color:var(--muted-l); padding-top:3px; letter-spacing:.03em;}
+  .case dd{color:var(--ink-soft);}
+  .case .maps{margin-top:18px; padding-top:12px; border-top:1px solid var(--line-l); display:flex; gap:6px; flex-wrap:wrap;}
+  .case .maps span{font-family:var(--font-mono); font-size:10px; padding:2px 8px; border-radius:12px; background:var(--paper-deep); color:var(--ink-soft);}
+  .case.draft{background:transparent; color:var(--inverse); border:1.5px dashed rgba(224,164,88,0.45); box-shadow:none;}
+  .case.draft .ind, .case.draft dt{color:var(--muted-d);}
+  .case.draft dd{color:var(--muted-d);}
+  .case.draft .maps{border-color:var(--line-d);}
+  .case.draft .maps span{background:rgba(232,234,240,0.07); color:var(--muted-d);}
+  .draft-flag{align-self:flex-start; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; color:var(--amber); border:1px solid rgba(224,164,88,0.5); padding:2px 8px; border-radius:3px; margin-bottom:12px;}
+
+  /* ---------- TEAM ---------- */
+  .team-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:18px;}
+  @media (max-width:900px){ .team-grid{grid-template-columns:1fr;} }
+  .team-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .team-table th{text-align:left; font-family:var(--font-mono); font-size:10.5px; font-weight:500; letter-spacing:.05em; color:var(--muted-l); padding:10px 12px; border-bottom:1px solid var(--line-l);}
+  .team-table td{padding:12px; border-bottom:1px solid var(--line-l); color:var(--ink-soft); vertical-align:top;}
+  .team-table td:first-child{color:var(--ink); font-weight:600;}
+  .team-table td.num{font-family:var(--font-display); font-size:18px; color:var(--violet-deep); white-space:nowrap;}
+  .team-table tr:last-child td{border-bottom:0;}
+  .strengths{list-style:none; display:flex; flex-direction:column; gap:14px;}
+  .strengths li{padding-left:16px; border-left:2px solid var(--c); font-size:13.5px; color:var(--muted-d); line-height:1.55;}
+  .strengths b{display:block; color:var(--inverse); font-weight:600; font-size:14.5px; margin-bottom:2px;}
+
+  .domain-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px;}
+  @media (max-width:900px){ .domain-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .domain-grid{grid-template-columns:1fr;} }
+  .domain{border:1px solid var(--line-d); border-radius:6px; padding:20px; background:rgba(232,234,240,0.03);}
+  .domain h4{font-family:var(--font-display); font-size:17px; font-weight:600;}
+  .domain .lvl{display:flex; gap:4px; margin:10px 0;}
+  .domain .lvl i{width:22px; height:5px; border-radius:3px; background:rgba(232,234,240,0.12);}
+  .domain .lvl i.on{background:var(--c);}
+  .domain p{font-size:12.5px; color:var(--muted-d); line-height:1.55;}
+  .domain .ev{margin-top:10px; font-family:var(--font-mono); font-size:10.5px; color:var(--amber);}
+
+  /* ---------- CAPACITY ---------- */
+  .pod-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:900px){ .pod-grid{grid-template-columns:1fr;} }
+  .pod{padding:28px 26px;}
+  .pod .ptag{font-family:var(--font-mono); font-size:10.5px; color:var(--muted-l);}
+  .pod h4{font-family:var(--font-display); font-size:21px; font-weight:600; margin:4px 0 8px;}
+  .pod p{font-size:13.5px; color:var(--ink-soft);}
+  .pod ul{list-style:none; margin-top:14px; font-size:13px; color:var(--ink-soft);}
+  .pod li{display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line-l);}
+  .pod li:last-child{border-bottom:0;}
+  .pod li span:last-child{font-family:var(--font-mono); font-size:12px; color:var(--ink);}
+  .pod .own{margin-top:14px; font-family:var(--font-mono); font-size:10.5px; color:var(--violet-deep);}
+
+  /* ---------- ENGAGEMENT ---------- */
+  .eng-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  @media (max-width:1000px){ .eng-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .eng-grid{grid-template-columns:1fr;} }
+  .eng{border:1px solid var(--line-d); border-radius:6px; padding:24px 20px; background:linear-gradient(160deg,#151C2C,#0F1522); position:relative; display:flex; flex-direction:column;}
+  .eng.rec{border-color:rgba(123,108,240,0.7); box-shadow:0 0 0 1px rgba(123,108,240,0.35) inset;}
+  .eng .badge{position:absolute; top:-10px; left:18px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.08em; background:var(--violet); color:#fff; padding:3px 9px; border-radius:3px;}
+  .eng h4{font-family:var(--font-display); font-size:19px; font-weight:600; line-height:1.25;}
+  .eng .best{font-family:var(--font-mono); font-size:10.5px; color:var(--amber); margin:6px 0 12px;}
+  .eng p{font-size:13px; color:var(--muted-d); line-height:1.55;}
+  .eng dl{margin-top:auto; padding-top:16px; display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:12px;}
+  .eng dt{font-family:var(--font-mono); font-size:10px; color:var(--muted-d); padding-top:2px;}
+  .eng dd{color:var(--inverse);}
+
+  .timeline{margin-top:34px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:1px solid var(--line-d);}
+  @media (max-width:860px){ .timeline{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .timeline{grid-template-columns:1fr;} }
+  .tl{padding:22px 20px 0 0; position:relative;}
+  .tl::before{content:''; position:absolute; top:-5px; left:0; width:9px; height:9px; border-radius:50%; background:var(--c);}
+  .tl .w{font-family:var(--font-mono); font-size:11px; color:var(--muted-d);}
+  .tl h5{font-family:var(--font-display); font-size:17px; font-weight:600; margin:4px 0 6px;}
+  .tl p{font-size:12.5px; color:var(--muted-d); line-height:1.55;}
+
+  /* ---------- SEALED ---------- */
+  .locked-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:900px){ .locked-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:600px){ .locked-grid{grid-template-columns:1fr;} }
+  .locked-card{background:linear-gradient(160deg,#171E2E,#0F1420); border:1px solid var(--line-d); border-radius:6px; padding:26px 22px; position:relative; overflow:hidden;}
+  .locked-card::after{content:'SEALED'; position:absolute; top:14px; right:-30px; background:rgba(232,234,240,0.08); color:var(--muted-d); font-family:var(--font-mono); font-size:9.5px; letter-spacing:.12em; padding:3px 34px; transform:rotate(35deg);}
+  .lock-icon{width:22px; height:22px; color:var(--muted-d); margin-bottom:16px;}
+  .locked-card h4{font-family:var(--font-display); font-size:18px; font-weight:600; margin-bottom:8px;}
+  .locked-card p{font-size:13px; color:var(--muted-d); line-height:1.55;}
+  .locked-card .tie{margin-top:14px; font-family:var(--font-mono); font-size:10.5px; color:var(--amber); border-top:1px solid var(--line-d); padding-top:12px;}
+
+  /* ---------- CLOSING ---------- */
+  .closing{background:var(--canvas-deep); border-top:1px solid var(--line-d); padding:100px 0 60px;}
+  .closing h2{font-family:var(--font-display); font-weight:600; font-size:clamp(30px,4.4vw,50px); max-width:720px; line-height:1.14;}
+  .closing p{margin-top:18px; color:var(--muted-d); max-width:560px; font-size:15.5px;}
+  .contact-row{margin-top:40px; display:flex; gap:40px; flex-wrap:wrap; border-top:1px solid var(--line-d); padding-top:26px;}
+  .contact-row .k{font-family:var(--font-mono); font-size:10.5px; color:var(--muted-d); margin-bottom:6px;}
+  .contact-row .v{font-size:15px; font-weight:500;}
+  .contact-row a{text-decoration:none; border-bottom:1px solid var(--violet);}
+  .foot{margin-top:70px; padding-top:24px; border-top:1px solid var(--line-d); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:var(--font-mono); font-size:11px; color:var(--muted-d);}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand"><strong>SynIntel.ai</strong> — partner prototype walkthrough</div>
+    <ul class="topnav-links">
+      <li><a href="#brief">Brief</a></li>
+      <li><a href="#capabilities">Capabilities</a></li>
+      <li><a href="#ask">Prototype</a></li>
+      <li><a href="#console">Live console</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#capacity">Capacity</a></li>
+      <li><a href="#engagement">Engagement</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ============ COVER ============ -->
+<header class="cover wrap">
+  <div class="cover-stamp"><b>SI-DECK · 01</b>PARTNER<br>EVALUATION<br>RESPONSE</div>
+  <div class="cover-eyebrow">A partner response built the same way we'd build the product: as working software, not a slide deck.</div>
+  <h1>Not a capability deck.<br>A working slice of <em>SynIntel.</em></h1>
+  <p class="cover-sub">You asked for partners across eight capability areas, from multi-agent AI to access control. Rather than describing each one, we built a small working version of the SynIntel platform that covers all eight. The recorded agent run, the screens and the console embedded further down are all running code.</p>
+  <div class="cover-meta">
+    <div><div class="k">Prepared for</div><div class="v">SynIntel.ai — Partner evaluation</div></div>
+    <div><div class="k">Prepared by</div><div class="v">Techtaru Digital</div></div>
+    <div><div class="k">Format</div><div class="v">Interactive HTML, opens in any browser</div></div>
+    <div><div class="k">Capability areas shown</div><div class="v">8 of 8</div></div>
+    <div><div class="k">Status</div><div class="v">Ready for walkthrough</div></div>
+  </div>
+</header>
+
+<hr class="divider">
+
+<!-- ============ BRIEF ============ -->
+<section id="brief" class="tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#7B6CF0"></span>SI-000 · THE BRIEF</span>
+      <h2>What you asked for, and where to find it.</h2>
+      <p>SynIntel is evaluating technology partners against its product roadmap for the next phase of development and market expansion. You asked each partner for six things. This table shows where each one is answered in this document.</p>
+    </div>
+    <table class="index">
+      <tr><th>YOU ASKED FOR</th><th>WHAT WE'RE SHOWING</th><th>GO TO</th></tr>
+      <tr><td>Relevant technology capabilities</td><td>All eight areas, each with our stack and the part of the prototype that demonstrates it</td><td><a href="#capabilities">SI-010 →</a></td></tr>
+      <tr><td>Similar enterprise projects delivered</td><td>Enterprise ecosystem and intelligence builds, and which SynIntel areas each one maps to</td><td><a href="#projects">SI-200 →</a></td></tr>
+      <tr><td>Technical expertise and team strengths</td><td>Team composition by discipline and the areas where we are strongest</td><td><a href="#team">SI-300 →</a></td></tr>
+      <tr><td>Industry / domain experience</td><td>Depth by vertical, with evidence for each</td><td><a href="#domains">SI-310 →</a></td></tr>
+      <tr><td>Available development capabilities</td><td>Three pods we can staff, with roles and start dates</td><td><a href="#capacity">SI-400 →</a></td></tr>
+      <tr><td>Preferred engagement / collaboration model</td><td>Four models, our recommendation, and the first 90 days</td><td><a href="#engagement">SI-500 →</a></td></tr>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ CAPABILITIES ============ -->
+<section id="capabilities">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#E0A458"></span>SI-010 · CAPABILITY FIT</span>
+      <h2>Eight areas, one platform.</h2>
+      <p>Each card covers what we bring to one of the eight areas, the stack we build it on, and where it appears in the prototype. The areas are designed to work together: the graph feeds the agents, and the governance layer covers all of them.</p>
+    </div>
+    <div class="cap-grid">
+      <div class="cap" style="--c:#7B6CF0"><span class="n">01</span><h4>AI / LLM &amp; Multi-Agent Systems</h4><p>Planner and specialist agents with tool use and model routing, plus evaluation suites and canary rollouts before anything reaches users.</p><div class="stack">LangGraph · MCP tools · RAG · model routing · eval harness · guardrails</div><div class="where"><a href="#ask">Seen in → SI-101, SI-102</a></div></div>
+      <div class="cap" style="--c:#4A7FE0"><span class="n">02</span><h4>Data Engineering &amp; Analytics</h4><p>CDC and streaming ingestion into an open lakehouse, tested dbt models, a shared semantic metrics layer and a feature store.</p><div class="stack">Kafka · Debezium · Spark / Flink · Iceberg · dbt · BI</div><div class="where"><a href="#data">Seen in → SI-104</a></div></div>
+      <div class="cap" style="--c:#8C93A8"><span class="n">03</span><h4>Enterprise Application Development</h4><p>Web consoles, embedded copilots, mobile field apps and low-code workflow builders, all built on one design system and one API.</p><div class="stack">React / Next.js · TypeScript · FastAPI · Go · React Native</div><div class="where"><a href="#console">Seen in → SI-110 (console)</a></div></div>
+      <div class="cap" style="--c:#3FB37F"><span class="n">04</span><h4>Cloud &amp; Distributed Systems</h4><p>Multi-tenant, multi-region Kubernetes with an autoscaled GPU inference pool, regional cells for data residency, and an air-gapped deployment option.</p><div class="stack">AWS · Azure · GCP · Kubernetes · Terraform · OpenTelemetry</div><div class="where"><a href="#cloud">Seen in → SI-107</a></div></div>
+      <div class="cap" style="--c:#2FA3A8"><span class="n">05</span><h4>Knowledge Graphs / Ontology / Semantic</h4><p>Ontology design, entity resolution across source systems, graph and vector retrieval together, and inferred relationships.</p><div class="stack">Neo4j · RDF / OWL · SHACL · vector index · GraphRAG</div><div class="where"><a href="#graph">Seen in → SI-103</a></div></div>
+      <div class="cap" style="--c:#E0A458"><span class="n">06</span><h4>Enterprise Integrations &amp; APIs</h4><p>Connectors for ERP, CRM, ITSM, document and HR systems. A versioned, rate-limited public API. Write-back only through approved actions.</p><div class="stack">SAP · Salesforce · ServiceNow · M365 · Workday · OpenAPI 3.1</div><div class="where"><a href="#integrations">Seen in → SI-105</a></div></div>
+      <div class="cap" style="--c:#E0645A"><span class="n">07</span><h4>Security, Governance &amp; Access Control</h4><p>RBAC and ABAC applied at retrieval time, field-level masking of personal data, prompt-injection defence and a tamper-evident audit trail.</p><div class="stack">OPA · SAML / OIDC · SCIM · KMS · SOC 2 / ISO 27001 mapping</div><div class="where"><a href="#governance">Seen in → SI-106</a></div></div>
+      <div class="cap" style="--c:#D0647F"><span class="n">08</span><h4>Industry-specific AI</h4><p>Industry packs, each containing an ontology extension, pre-built connectors, tuned agents and golden evaluation sets.</p><div class="stack">Manufacturing · Retail &amp; Distribution · BFSI · Healthcare · Energy</div><div class="where"><a href="#industry">Seen in → SI-108</a></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-101 ASK (VIDEO) ============ -->
+<section id="ask">
+  <div class="wrap">
+    <div class="panel module reverse">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#5B4BC4"></span>SI-101 · ASK SYNINTEL</span>
+        <h3>A business question in, a cited answer out.</h3>
+        <p class="lede">We'd open the walkthrough with this module. A user asks a plain-language question. A planner agent breaks it into sub-tasks, specialist agents answer them from the graph and the source systems, and a policy agent checks what that user is allowed to see before the answer is written.</p>
+        <ul class="feature-list">
+          <li><b>Six-agent trace, visible step by step</b>: planner, retriever, graph reasoner, analyst, guardrail and synthesiser</li>
+          <li><b>Every claim cited</b> back to a contract, a purchase order or a ticket</li>
+          <li><b>Permission-aware</b>: the same question gives a different answer to a CXO and to Legal</li>
+          <li><b>Actions need approval</b>: the agent drafts the ServiceNow request, and a person approves it</li>
+        </ul>
+        <div class="pill">Recorded walkthrough of the prototype, not a concept video</div>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/ask</span></div>
+          <video class="player" controls playsinline muted preload="metadata" poster="{{SHOT_ask}}" src="{{VIDEO}}"></video>
+        </div>
+        <p class="scroll-hint">▶ about 35 seconds: two agent runs, then the graph and role-based views</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-102 AGENTS ============ -->
+<section id="agents">
+  <div class="wrap">
+    <div class="panel module">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#7B6CF0"></span>SI-102 · AGENT ORCHESTRATOR</span>
+        <h3>Agents released like software, not like demos.</h3>
+        <p class="lede">Every agent is defined in a versioned spec: its tools, its model route, how long its memory lasts and which guardrails apply. It cannot reach production until it passes an evaluation suite and a canary rollout.</p>
+        <ul class="feature-list">
+          <li><b>Model routing</b>: a large model for planning, a small fast model for retrieval, and a self-hosted fallback for tenants with data-residency requirements</li>
+          <li><b>Release gate</b> on accuracy, citation faithfulness, tool-call success, cost and latency</li>
+          <li><b>Human in the loop</b>: any tool that writes to a system of record requires approval</li>
+        </ul>
+        <div class="stat-row">
+          <div class="stat"><b>94.2%</b><span>EVAL PASS RATE</span></div>
+          <div class="stat"><b>0.6%</b><span>HALLUCINATION RATE</span></div>
+          <div class="stat"><b>14</b><span>AGENTS IN FLEET</span></div>
+        </div>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/agents</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_agents}}" alt="SynIntel agent orchestrator screen"></div>
+        </div>
+        <p class="scroll-hint">↕ scroll inside the frame for the full screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-103 GRAPH ============ -->
+<section id="graph">
+  <div class="wrap">
+    <div class="panel module reverse">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#0F7C82"></span>SI-103 · KNOWLEDGE GRAPH</span>
+        <h3>Define each entity once, then link it across every system.</h3>
+        <p class="lede">The ontology defines entities like Supplier, Contract and Plant once. Entity resolution then links "Acme Ltd" in SAP to "ACME Limited" in a scanned contract. That is how the agent in SI-101 traced a single-source component through to at-risk revenue in one step.</p>
+        <ul class="feature-list">
+          <li><b>Interactive graph explorer</b>: click a node to see its properties, its source system and its neighbours</li>
+          <li><b>Ontology you can version</b>, with industry packs extending the core classes</li>
+          <li><b>Hybrid retrieval</b>: graph traversal and vector search in the same query</li>
+        </ul>
+        <div class="stat-row">
+          <div class="stat"><b>18.4M</b><span>ENTITIES</span></div>
+          <div class="stat"><b>142</b><span>ONTOLOGY CLASSES</span></div>
+          <div class="stat"><b>97.3%</b><span>RESOLUTION PRECISION</span></div>
+        </div>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/graph</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_graph}}" alt="SynIntel knowledge graph explorer"></div>
+        </div>
+        <p class="scroll-hint">↕ the live version of this graph is clickable in the console below</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-104 DATA ============ -->
+<section id="data">
+  <div class="wrap">
+    <div class="panel module">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#2458B8"></span>SI-104 · DATA &amp; ANALYTICS</span>
+        <h3>Pipelines with owners, SLAs and tests.</h3>
+        <p class="lede">Data arrives through change-data-capture from ERP, streaming from CRM and plant systems, and document parsing with OCR. It all lands in an open-format lakehouse. The gold layer then serves three consumers: the dashboards, the feature store and the knowledge graph.</p>
+        <ul class="feature-list">
+          <li><b>Lineage from source to graph</b>, from bronze through silver to gold</li>
+          <li><b>Data-quality monitors</b> that flag anomalies before an agent can use bad data</li>
+          <li><b>One semantic metrics layer</b>, so "revenue" means the same thing in BI, SQL and the Analyst agent</li>
+        </ul>
+        <div class="stat-row">
+          <div class="stat"><b>42s</b><span>MEDIAN FRESHNESS</span></div>
+          <div class="stat"><b>212</b><span>DBT MODELS</span></div>
+          <div class="stat"><b>1,486</b><span>QUALITY CHECKS</span></div>
+        </div>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/data</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_data}}" alt="SynIntel data pipelines screen"></div>
+        </div>
+        <p class="scroll-hint">↕ scroll inside the frame for the full screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-105 INTEGRATIONS ============ -->
+<section id="integrations">
+  <div class="wrap">
+    <div class="panel module reverse">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#B7791F"></span>SI-105 · INTEGRATIONS &amp; APIs</span>
+        <h3>Works with the systems customers already run.</h3>
+        <p class="lede">Connectors read from SAP, Salesforce, ServiceNow, Microsoft 365, Snowflake, Workday, Kafka and older ERPs. They write back only through approved actions. Everything in the console is also available through a versioned public API.</p>
+        <ul class="feature-list">
+          <li><b>Live connector health</b> with latency and last sync, so a degraded connector is visible before it causes a problem</li>
+          <li><b>On-behalf-of API calls</b> that go through the same policy engine as the console, with no admin bypass</li>
+          <li><b>Cost ceilings per request</b> (<code>max_cost_inr</code>) so API callers can't overspend on inference</li>
+        </ul>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/integrations</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_integrations}}" alt="SynIntel integrations and API screen"></div>
+        </div>
+        <p class="scroll-hint">↕ scroll inside the frame for the full screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-106 GOVERNANCE ============ -->
+<section id="governance">
+  <div class="wrap">
+    <div class="panel module">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#B23A30"></span>SI-106 · SECURITY &amp; GOVERNANCE</span>
+        <h3>The model only sees what the user is allowed to see.</h3>
+        <p class="lede">Enterprise buyers ask about this first, so we treat it as a core feature. Policies are applied when data is retrieved, before anything reaches the LLM. You can switch roles in the console and watch the same contract record change.</p>
+        <ul class="feature-list">
+          <li><b>Field-level masking and redaction</b> for each role: CXO, Procurement, Analyst and Legal</li>
+          <li><b>Prompt-injection detection</b> on retrieved documents, with blocks recorded in the audit log</li>
+          <li><b>Tamper-evident audit trail</b> linking every answer to the exact records it used</li>
+          <li><b>SSO, SCIM, data residency</b>, and customer-managed keys on the roadmap</li>
+        </ul>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/governance</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_governance}}" alt="SynIntel security and governance screen"></div>
+        </div>
+        <p class="scroll-hint">↕ scroll inside the frame for the full screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-107 CLOUD ============ -->
+<section id="cloud">
+  <div class="wrap">
+    <div class="panel module reverse">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#1F7A4D"></span>SI-107 · CLOUD &amp; DISTRIBUTED</span>
+        <h3>Deployable in-region, with a fully on-premise option.</h3>
+        <p class="lede">For expansion into new markets, where the platform can be deployed matters as much as what it does. The architecture uses regional cells for data residency, a warm-standby DR region, and a fully air-gapped deployment for regulated customers that runs on open-source models.</p>
+        <ul class="feature-list">
+          <li><b>Autoscaled GPU inference pool</b> with a queue in front of it, sized to traffic</li>
+          <li><b>Event-sourced core</b> on Kafka, with idempotent consumers and circuit breakers on every connector</li>
+          <li><b>Cost per tenant visible</b>, so pricing decisions are based on real unit costs</li>
+        </ul>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/cloud</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_cloud}}" alt="SynIntel cloud and infrastructure screen"></div>
+        </div>
+        <p class="scroll-hint">↕ scroll inside the frame for the full screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-108 INDUSTRY ============ -->
+<section id="industry">
+  <div class="wrap">
+    <div class="panel module">
+      <div class="module-text">
+        <span class="swatch-tag"><span class="chip" style="background:#B4415F"></span>SI-108 · INDUSTRY PACKS</span>
+        <h3>A new vertical means installing a pack, not rebuilding the platform.</h3>
+        <p class="lede">Each industry pack adds domain classes to the core ontology, pre-built connectors for that industry's systems, tuned agents and golden evaluation sets. A new customer in a covered industry starts with most of the setup done.</p>
+        <ul class="feature-list">
+          <li><b>Manufacturing</b> and <b>Retail &amp; Distribution</b> are working in the prototype</li>
+          <li><b>BFSI</b> and <b>Healthcare</b> are proposed for the next phase, with compliance profiles already mapped</li>
+          <li><b>Energy &amp; Utilities</b> is on the roadmap</li>
+        </ul>
+      </div>
+      <div class="module-visual">
+        <div class="browser-frame">
+          <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai/industry</span></div>
+          <div class="browser-scroll"><img src="{{SHOT_industry}}" alt="SynIntel industry packs screen"></div>
+        </div>
+        <p class="scroll-hint">↕ click a pack in the live console to switch its use cases</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SI-110 LIVE CONSOLE ============ -->
+<section id="console">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#7B6CF0"></span>SI-110 · LIVE CONSOLE</span>
+      <h2>All of it, running inside this document.</h2>
+      <p>This is the full prototype console, embedded and running. It has ten screens covering the eight capability areas, plus an overview with a live event stream and the multi-agent query screen.</p>
+      <p class="kicker-note">Try this: open "Ask SynIntel" and press Run agents. Then open "Security &amp; Governance" and switch roles to see the same record masked differently.</p>
+    </div>
+    <div class="console-shell">
+      <div class="browser-bar"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-url">app.synintel.ai — enterprise intelligence console (prototype)</span></div>
+      <iframe class="console-frame" title="SynIntel enterprise intelligence console prototype" src="{{CONSOLE}}"></iframe>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SI-200 PROJECTS ============ -->
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#E0A458"></span>SI-200 · SIMILAR ENTERPRISE PROJECTS</span>
+      <h2>We've built this kind of platform before.</h2>
+      <p>Each project below is tagged with the SynIntel capability areas it demonstrates. The common thread is a central identity or intelligence hub, many connected systems around it, and AI layered on top.</p>
+    </div>
+    <div class="case-grid">
+      <div class="panel case">
+        <span class="ind">MANUFACTURING &amp; DISTRIBUTION · EAST AFRICA</span>
+        <h4>Enterprise digital ecosystem for a 55-branch paints &amp; cement manufacturer</h4>
+        <dl>
+          <dt>PROBLEM</dt><dd>Eight separate customer-facing platforms with no shared customer record and no single view for head office.</dd>
+          <dt>WHAT WE BUILT</dt><dd>A CRM hub with a 360° customer view, connected to loyalty, e-commerce, a painter marketplace, an AI colour visualizer, WhatsApp commerce and a bilingual AI chatbot, plus an operations console.</dd>
+          <dt>INTEGRATIONS</dt><dd>Sage X3 ERP, M-Pesa Daraja payments, Africa's Talking SMS/USSD, WhatsApp Business API, AWS Textract OCR.</dd>
+          <dt>STATUS</dt><dd><span class="fill">[confirm: prototype delivered / in build / live]</span></dd>
+        </dl>
+        <div class="maps"><span>01 AI / chatbot</span><span>03 Enterprise apps</span><span>06 Integrations</span><span>08 Industry AI</span></div>
+      </div>
+      <div class="case draft">
+        <span class="draft-flag">DRAFT — REPLACE WITH VERIFIED CASE STUDY</span>
+        <span class="ind">[INDUSTRY · REGION]</span>
+        <h4>[Knowledge graph / data platform engagement]</h4>
+        <dl>
+          <dt>PROBLEM</dt><dd>[What the client couldn't do before]</dd>
+          <dt>WHAT WE BUILT</dt><dd>[Pipelines, lakehouse, ontology or graph, dashboards]</dd>
+          <dt>STACK</dt><dd>[Tools used]</dd>
+          <dt>OUTCOME</dt><dd>[Measured result, e.g. reporting time cut from X to Y]</dd>
+        </dl>
+        <div class="maps"><span>02 Data</span><span>05 Knowledge graph</span></div>
+      </div>
+      <div class="case draft">
+        <span class="draft-flag">DRAFT — REPLACE WITH VERIFIED CASE STUDY</span>
+        <span class="ind">[INDUSTRY · REGION]</span>
+        <h4>[LLM / agent application in production]</h4>
+        <dl>
+          <dt>PROBLEM</dt><dd>[Manual process or knowledge bottleneck]</dd>
+          <dt>WHAT WE BUILT</dt><dd>[RAG assistant, agents, evaluation, guardrails]</dd>
+          <dt>STACK</dt><dd>[Models, frameworks, hosting]</dd>
+          <dt>OUTCOME</dt><dd>[Resolution rate, time saved, adoption]</dd>
+        </dl>
+        <div class="maps"><span>01 AI / Agents</span><span>07 Governance</span></div>
+      </div>
+      <div class="case draft">
+        <span class="draft-flag">DRAFT — REPLACE WITH VERIFIED CASE STUDY</span>
+        <span class="ind">[INDUSTRY · REGION]</span>
+        <h4>[Cloud / integration-heavy enterprise platform]</h4>
+        <dl>
+          <dt>PROBLEM</dt><dd>[Scale, reliability or integration challenge]</dd>
+          <dt>WHAT WE BUILT</dt><dd>[Architecture, connectors, APIs]</dd>
+          <dt>STACK</dt><dd>[Cloud, orchestration, observability]</dd>
+          <dt>OUTCOME</dt><dd>[Uptime, throughput, cost]</dd>
+        </dl>
+        <div class="maps"><span>04 Cloud</span><span>06 Integrations</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SI-300 TEAM ============ -->
+<section id="team">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#2FA3A8"></span>SI-300 · EXPERTISE &amp; TEAM STRENGTHS</span>
+      <h2>Who would build the next phase.</h2>
+      <p>Our team is organised by discipline, and each discipline maps to one or more of SynIntel's capability areas. On the right are the strengths we'd put forward first.</p>
+    </div>
+    <div class="team-grid">
+      <div class="panel" style="padding:10px 16px 6px;">
+        <table class="team-table">
+          <tr><th>DISCIPLINE</th><th>PEOPLE</th><th>MAPS TO</th></tr>
+          <tr><td>AI / ML &amp; LLM engineering</td><td class="num"><span class="fill">[#]</span></td><td>01 · 08</td></tr>
+          <tr><td>Data engineering &amp; analytics</td><td class="num"><span class="fill">[#]</span></td><td>02 · 05</td></tr>
+          <tr><td>Knowledge graph &amp; ontology</td><td class="num"><span class="fill">[#]</span></td><td>05</td></tr>
+          <tr><td>Full-stack &amp; mobile engineering</td><td class="num"><span class="fill">[#]</span></td><td>03</td></tr>
+          <tr><td>Cloud, DevOps &amp; SRE</td><td class="num"><span class="fill">[#]</span></td><td>04</td></tr>
+          <tr><td>Integration engineering</td><td class="num"><span class="fill">[#]</span></td><td>06</td></tr>
+          <tr><td>Security &amp; compliance</td><td class="num"><span class="fill">[#]</span></td><td>07</td></tr>
+          <tr><td>Product, UX &amp; delivery management</td><td class="num"><span class="fill">[#]</span></td><td>All</td></tr>
+        </table>
+      </div>
+      <ul class="strengths">
+        <li style="--c:#7B6CF0"><b>We ship working software to show our approach</b>This document is an example. We'd rather show SynIntel a running build than a list of promises, and we'd work the same way during the engagement.</li>
+        <li style="--c:#E0A458"><b>Integration-heavy ecosystems</b>We have experience connecting ERP, payment, messaging and OCR systems to one central hub, which is the core problem SynIntel's semantic layer solves.</li>
+        <li style="--c:#2FA3A8"><b>AI with guardrails from day one</b>Evaluation suites, citation requirements and approval steps for actions are designed in from the start.</li>
+        <li style="--c:#D0647F"><b>Design quality that enterprise buyers notice</b>We build consoles that end users adopt, which matters when SynIntel is competing for enterprise deals.</li>
+      </ul>
+    </div>
+
+    <div id="domains" style="margin-top:72px;">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#D0647F"></span>SI-310 · INDUSTRY / DOMAIN EXPERIENCE</span>
+      <div class="domain-grid">
+        <div class="domain" style="--c:#3FB37F"><h4>Manufacturing &amp; distribution</h4><div class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p>Branch networks, dealer and contractor channels, ERP-linked stock and invoicing.</p><div class="ev">Evidence → SI-200, paints &amp; cement ecosystem</div></div>
+        <div class="domain" style="--c:#E0A458"><h4>Retail, e-commerce &amp; loyalty</h4><div class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p>Omnichannel storefronts, multi-tier loyalty, WhatsApp commerce, mobile payments.</p><div class="ev">Evidence → SI-200, paints &amp; cement ecosystem</div></div>
+        <div class="domain" style="--c:#4A7FE0"><h4>BFSI</h4><div class="lvl"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div><p><span class="fill">[confirm: KYC, lending, regulatory-reporting experience]</span></p><div class="ev">Evidence → <span class="fill">[add]</span></div></div>
+        <div class="domain" style="--c:#D0647F"><h4>Healthcare &amp; life sciences</h4><div class="lvl"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div><p><span class="fill">[confirm: clinical, claims or patient-app experience]</span></p><div class="ev">Evidence → <span class="fill">[add]</span></div></div>
+        <div class="domain" style="--c:#7B6CF0"><h4>Education &amp; e-learning</h4><div class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><p><span class="fill">[confirm: AI tutoring / learning-platform builds]</span></p><div class="ev">Evidence → <span class="fill">[add]</span></div></div>
+        <div class="domain" style="--c:#2FA3A8"><h4>Digital marketing &amp; growth</h4><div class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p>SEO, AEO and GEO, analytics and campaign automation. Useful for SynIntel's market-expansion goals as well as the build.</p><div class="ev">Evidence → Techtaru Digital core practice</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SI-400 CAPACITY ============ -->
+<section id="capacity">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#3FB37F"></span>SI-400 · AVAILABLE DEVELOPMENT CAPABILITIES</span>
+      <h2>Three pods, each owning one layer of the architecture.</h2>
+      <p>We'd staff the engagement as pods that each own a layer of the architecture, so SynIntel can start with one pod and add the others as the roadmap requires. Headcounts and start dates are indicative until scoping is complete.</p>
+    </div>
+    <div class="pod-grid">
+      <div class="panel pod">
+        <span class="ptag">POD A</span><h4>Intelligence pod</h4>
+        <p>Agents, the knowledge graph and industry packs.</p>
+        <ul>
+          <li><span>Tech lead, AI</span><span>1</span></li>
+          <li><span>LLM / agent engineers</span><span>2–3</span></li>
+          <li><span>Knowledge-graph engineer</span><span>1</span></li>
+          <li><span>ML / evaluation engineer</span><span>1</span></li>
+          <li><span>Can start</span><span class="fill">[wk X]</span></li>
+        </ul>
+        <div class="own">Owns → 01 · 05 · 08</div>
+      </div>
+      <div class="panel pod">
+        <span class="ptag">POD B</span><h4>Platform pod</h4>
+        <p>Data, integrations, cloud and security.</p>
+        <ul>
+          <li><span>Tech lead, platform</span><span>1</span></li>
+          <li><span>Data engineers</span><span>2</span></li>
+          <li><span>Integration engineer</span><span>1</span></li>
+          <li><span>DevOps / SRE</span><span>1</span></li>
+          <li><span>Can start</span><span class="fill">[wk X]</span></li>
+        </ul>
+        <div class="own">Owns → 02 · 04 · 06 · 07</div>
+      </div>
+      <div class="panel pod">
+        <span class="ptag">POD C</span><h4>Experience pod</h4>
+        <p>Consoles, copilots, mobile apps and the design system.</p>
+        <ul>
+          <li><span>Product / UX lead</span><span>1</span></li>
+          <li><span>Frontend engineers</span><span>2</span></li>
+          <li><span>Mobile engineer</span><span>1</span></li>
+          <li><span>QA automation</span><span>1</span></li>
+          <li><span>Can start</span><span class="fill">[wk X]</span></li>
+        </ul>
+        <div class="own">Owns → 03</div>
+      </div>
+    </div>
+    <p class="kicker-note" style="margin-top:22px;">All pods share one delivery manager, two-week sprints, a demo at the end of every sprint and a shared DORA-metrics report. Working-hour overlap with SynIntel's team: <span class="fill">[confirm timezone overlap]</span>.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SI-500 ENGAGEMENT ============ -->
+<section id="engagement">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#7B6CF0"></span>SI-500 · ENGAGEMENT MODEL</span>
+      <h2>Four ways to work together.</h2>
+      <p>We can work under any of these four models. For a product company building its next phase, we recommend the first one.</p>
+    </div>
+    <div class="eng-grid">
+      <div class="eng rec"><span class="badge">RECOMMENDED</span><h4>Roadmap co-development partner</h4><div class="best">Best for: the next-phase roadmap</div><p>We join SynIntel's product planning, take ownership of whole roadmap themes and ship them into your codebase to your standards. Pods scale up or down each quarter.</p><dl><dt>COMMERCIALS</dt><dd>Quarterly retainer per pod</dd><dt>IP</dt><dd>100% SynIntel</dd><dt>GOVERNANCE</dt><dd>Joint quarterly roadmap review</dd></dl></div>
+      <div class="eng"><h4>Dedicated pod</h4><div class="best">Best for: extra capacity</div><p>One or more pods working inside SynIntel's own engineering organisation, following your rituals and led by your product managers.</p><dl><dt>COMMERCIALS</dt><dd>Monthly, time &amp; materials</dd><dt>IP</dt><dd>100% SynIntel</dd><dt>GOVERNANCE</dt><dd>Your sprint cadence</dd></dl></div>
+      <div class="eng"><h4>Fixed-scope module</h4><div class="best">Best for: a single well-defined module</div><p>A specific module, such as the BFSI pack or the connector SDK, delivered against agreed acceptance criteria, then handed over with documentation.</p><dl><dt>COMMERCIALS</dt><dd>Milestone-based fixed price</dd><dt>IP</dt><dd>100% SynIntel</dd><dt>GOVERNANCE</dt><dd>Milestone sign-off</dd></dl></div>
+      <div class="eng"><h4>Build-operate-transfer</h4><div class="best">Best for: new-market expansion</div><p>We build and run a regional delivery or implementation team for SynIntel's customers, then transfer the team and its processes to you on an agreed date.</p><dl><dt>COMMERCIALS</dt><dd>Build fee + run retainer</dd><dt>IP</dt><dd>100% SynIntel</dd><dt>GOVERNANCE</dt><dd>Transfer at month <span class="fill">[N]</span></dd></dl></div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl" style="--c:#7B6CF0"><div class="w">WEEKS 0–2</div><h5>Roadmap alignment</h5><p>Architecture review of the current SynIntel platform. Choose one roadmap theme to pilot and agree acceptance criteria.</p></div>
+      <div class="tl" style="--c:#2FA3A8"><div class="w">WEEKS 3–6</div><h5>Pilot module</h5><p>One pod delivers the chosen module, for example an industry pack or the connector SDK, into SynIntel's codebase, with a demo every sprint.</p></div>
+      <div class="tl" style="--c:#E0A458"><div class="w">WEEKS 7–10</div><h5>Harden &amp; measure</h5><p>Evaluation suite, security review and production rollout. Report on delivery (DORA) metrics and quality measures.</p></div>
+      <div class="tl" style="--c:#3FB37F"><div class="w">WEEKS 11–13</div><h5>Scale decision</h5><p>A joint review decides whether to add pods, take on more roadmap themes, or finish with a clean handover.</p></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ ROADMAP / SEALED ============ -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="swatch-tag on-dark"><span class="chip" style="background:#6B7183"></span>SI-6XX · WHAT'S SEALED</span>
+      <h2>Proposed next-phase modules.</h2>
+      <p>Each of these six next-phase modules plugs into a part of the architecture that already exists in the prototype. They stay switched off until SynIntel decides which roadmap themes to prioritise.</p>
+    </div>
+    <div class="locked-grid">
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Agent marketplace</h4><p>Customers and partners publish agents built on a shared spec. Each agent passes an evaluation gate before it can be listed, and customers can install one per tenant.</p><div class="tie">Ties to → Agent Orchestrator, Eval harness</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Auto-ontology from documents</h4><p>Proposes new ontology classes and relationships from a customer's own documents, with a person reviewing them before they're merged. This shortens onboarding from weeks to days.</p><div class="tie">Ties to → Knowledge Graph, Doc parsing</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Connector SDK</h4><p>Lets implementation partners build connectors for regional ERPs themselves, with certification tests, so SynIntel can enter new markets without waiting on core engineering.</p><div class="tie">Ties to → Integrations &amp; APIs</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Customer-managed keys</h4><p>Encryption keys held by the customer, per tenant, with revocation. Banks and hospitals typically require this before they sign.</p><div class="tie">Ties to → Security &amp; Governance, Cloud</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>BFSI industry pack</h4><p>KYC / AML entity resolution, analysis of how regulatory changes affect a bank, and a credit-memo drafting agent, with a compliance profile mapped to local regulators.</p><div class="tie">Ties to → Industry Packs, Knowledge Graph</div></div>
+      <div class="locked-card"><svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h4>Healthcare industry pack</h4><p>HL7 / FHIR connectors, clinical document summarisation and claims anomaly detection, with controls for protected health information (PHI) in the policy engine.</p><div class="tie">Ties to → Industry Packs, Governance</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSING ============ -->
+<section class="closing" id="contact">
+  <div class="wrap">
+    <span class="swatch-tag on-dark"><span class="chip" style="background:#7B6CF0"></span>SI-999 · NEXT STEP</span>
+    <h2>Pick a roadmap theme. We'll bring it to a working demo.</h2>
+    <p>The best way to evaluate a partner is to see them work on your own roadmap. Choose one next-phase theme and we'll scope it with your team in a working session, then show you a running pilot within the first six weeks.</p>
+    <div class="contact-row">
+      <div><div class="k">Company</div><div class="v">Techtaru Digital</div></div>
+      <div><div class="k">Email</div><div class="v"><a href="mailto:sales@techtaru.com">sales@techtaru.com</a></div></div>
+      <div><div class="k">Web</div><div class="v"><a href="https://techtaru.com">techtaru.com</a></div></div>
+      <div><div class="k">This document</div><div class="v">Self-contained: no install and no login</div></div>
+    </div>
+    <div class="foot">
+      <span>SI-DECK-01 · Partner prototype walkthrough · by Techtaru Digital</span>
+      <span>Prototype uses illustrative demo data · Prepared for SynIntel.ai partner evaluation</span>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
